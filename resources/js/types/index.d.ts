@@ -8,4 +8,10 @@ export type PageProps<
     conversation: Conversation;
     messages: Message[];
     subscription: Subscription;
+    periods: Period[];
+    paymentMethods: PaymentMethod[];
+    package: {
+        period: PeriodValue;
+        price: number;
+    };
 };

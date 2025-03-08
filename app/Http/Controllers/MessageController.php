@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Status;
 use App\Events\ReceivedMessage;
 use App\Http\Requests\MessageStoreRequest;
 use App\Interfaces\MessageInterface;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\PhoneNumber;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +23,9 @@ class MessageController extends Controller
 
     public function index()
     {
-        $number = PhoneNumber::whereNumber('+18573672437')->first();
+        $user = Auth::user();
+
+        $number = $user->phoneNumber;
 
         $chatLists = $number->conversations()->with('lastMessage')->get();
 
@@ -33,7 +38,9 @@ class MessageController extends Controller
     {
         $messages = $conversation->messages()->with('image')->latest()->get();
 
-        $number = PhoneNumber::whereNumber('+18573672437')->first();
+        $user = Auth::user();
+
+        $number = $user->phoneNumber;
 
         $chatLists = $number->conversations()->with('lastMessage')->get();
 
@@ -50,11 +57,11 @@ class MessageController extends Controller
 
         $authUser = Auth::user();
 
-        if (!$authUser) {
+        if (!$authUser instanceof User) {
             return response()->json(['success' => false, 'message' => 'User not authenticated'], 401);
         }
 
-        if (!$authUser->subscription || $authUser->subscription->is_expired) {
+        if (!$this->isValidSubscription($authUser)) {
             return response()->json(['success' => false, 'message' => 'Don\'t have subscription'], 401);
         }
 
@@ -139,5 +146,14 @@ class MessageController extends Controller
         ]);
 
         return $message->load('image');
+    }
+
+    public function isValidSubscription(User $authUser): bool
+    {
+        if(!$authUser->subscription || $authUser->subscription->is_expired || $authUser->subscription->status !== Status::COMPLETED) {
+            return false;
+        }
+
+        return true;    
     }
 }

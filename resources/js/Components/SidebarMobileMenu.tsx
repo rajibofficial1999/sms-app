@@ -1,6 +1,13 @@
 import { cn } from "@/lib/utils";
-import { Link, usePage } from "@inertiajs/react";
-import { Gem, LayoutDashboard, MessageSquare, Settings } from "lucide-react";
+import { Link, router, usePage } from "@inertiajs/react";
+import {
+    Gem,
+    LayoutDashboard,
+    LogOut,
+    MessageSquare,
+    Settings,
+} from "lucide-react";
+import { Button } from "./ui/button";
 
 export const sidebarOptions: SidebarOption[] = [
     {
@@ -18,7 +25,7 @@ export const sidebarOptions: SidebarOption[] = [
     {
         id: 3,
         name: "Settings",
-        href: route("settings"),
+        href: route("profile.edit"),
         Icon: Settings,
     },
     {
@@ -28,6 +35,10 @@ export const sidebarOptions: SidebarOption[] = [
         Icon: Gem,
     },
 ];
+
+const handleLogout = () => {
+    router.post(route("logout"));
+};
 
 const SidebarMobileMenu = () => {
     const { url } = usePage();
@@ -56,6 +67,19 @@ const SidebarMobileMenu = () => {
                     </li>
                 );
             })}
+
+            <li>
+                <button
+                    onClick={handleLogout}
+                    className="text-gray-700  group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold hover:bg-gray-100 w-full"
+                >
+                    <span className="text-gray-400 border-gray-200  flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white">
+                        <LogOut className="h-4 w-4" />
+                    </span>
+
+                    <span className="truncate">Log Out</span>
+                </button>
+            </li>
         </ul>
     );
 };

@@ -1,15 +1,20 @@
 import { cn } from "@/lib/utils";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
+import { LogOut } from "lucide-react";
 import React from "react";
 import ApplicationLogo from "./ApplicationLogo";
 import { sidebarOptions } from "./SidebarMobileMenu";
-import { buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 
 interface SubSidebarProps {
     className?: string;
 }
 
 const SubSidebar: React.FC<SubSidebarProps> = ({ className }) => {
+    const handleLogout = () => {
+        router.post(route("logout"));
+    };
+
     return (
         <div
             className={cn(
@@ -27,7 +32,7 @@ const SubSidebar: React.FC<SubSidebarProps> = ({ className }) => {
                 {sidebarOptions.map((option) => {
                     const Icon = option.Icon;
                     return (
-                        <li key={option.id}>
+                        <li className="flex justify-center" key={option.id}>
                             <Link
                                 className={buttonVariants({
                                     variant: "ghost",
@@ -42,6 +47,18 @@ const SubSidebar: React.FC<SubSidebarProps> = ({ className }) => {
                     );
                 })}
             </ul>
+
+            <div className="flex justify-center">
+                <Button
+                    title="Log Out"
+                    size="icon"
+                    variant="ghost"
+                    className="mb-3"
+                    onClick={handleLogout}
+                >
+                    <LogOut className="text-gray-600" />
+                </Button>
+            </div>
         </div>
     );
 };

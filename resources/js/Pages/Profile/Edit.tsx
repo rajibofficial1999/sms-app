@@ -6,6 +6,7 @@ import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationFor
 import { ReactNode } from "react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import DashboardBreadcrumb from "@/Components/DashboardBreadcrumb";
+import { ScrollArea } from "@/Components/ui/scroll-area";
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -23,7 +24,7 @@ const Edit = ({
 }: PageProps<{ mustVerifyEmail: boolean; status?: string }>) => {
     return (
         <>
-            <div className="h-screen overflow-y-scroll px-4">
+            <ScrollArea className="h-screen px-4">
                 <Head title="Settings" />
 
                 <DashboardBreadcrumb
@@ -50,7 +51,7 @@ const Edit = ({
                         </div>
                     </div>
                 </div>
-            </div>
+            </ScrollArea>
         </>
     );
 };

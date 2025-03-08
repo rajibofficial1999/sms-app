@@ -9,6 +9,19 @@ declare global {
         axios: AxiosInstance;
     }
 
+    type PeriodValue = "monthly" | "weekly" | "yearly";
+    type Status = "pending" | "completed" | "rejected";
+
+    interface Period {
+        value: PeriodValue;
+        price: number;
+    }
+
+    interface PricingFeature {
+        text: string;
+        negetive: boolean;
+    }
+
     interface User {
         id: number;
         name: string;
@@ -16,6 +29,7 @@ declare global {
         email_verified_at?: string;
         subscription: Subscription;
         phone_numbers: PhoneNumber;
+        avatar: string | null;
         conversations: Conversation[];
         created_at: string;
         updated_at: string;
@@ -66,13 +80,40 @@ declare global {
         updated_at: string;
     }
 
+    interface PaymentMethod {
+        id: number;
+        type: string;
+        account_number: number;
+        account_type: string;
+        logo: string;
+        status: boolean;
+    }
+
+    interface Order {
+        id: number;
+        user_id: number;
+        user?: User;
+        payment_method_id: number;
+        payment_method?: PaymentMethod;
+        account_holder_name: string;
+        period: string;
+        subscription: Subscription;
+        created_at: Date;
+        updated_at: Date;
+        payment_screenshot: string;
+        status: Status;
+    }
+
     interface Subscription {
         id: number;
         user_id: number;
-        user: User;
+        user?: User;
+        order_id: number;
+        order?: Order;
         has_subscription: boolean;
         expired_at: string;
         is_expired: boolean;
+        status: Status;
     }
 
     interface BreadcrumbItem {
