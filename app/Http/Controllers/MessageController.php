@@ -10,7 +10,6 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\PhoneNumber;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,8 +52,6 @@ class MessageController extends Controller
 
     public function store(MessageStoreRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
         $authUser = Auth::user();
 
         if (!$authUser instanceof User) {
@@ -65,20 +62,16 @@ class MessageController extends Controller
             return response()->json(['success' => false, 'message' => 'Don\'t have subscription'], 401);
         }
 
-        $conversation = Conversation::findOrFail($validated['conversation']);
-        // $receiverNumber = $conversation->traffic_number;
-        $receiverNumber = "+18777804236";
-
-        // Handle Image Upload
-        $imageUrl = $this->uploadImage($request);
-
-        // Send SMS or MMS based on available data
-        $response = $validated['body']
-            ? $this->message->sendSMS($receiverNumber, $validated['body'])
-            : $this->message->sendMMS($receiverNumber, $imageUrl);
-
+        $response = $this->message->sendMessage($request); 
+        
         if ($response->get('success')) {
-            $this->createMessage($conversation, $validated['body'] ?? null, $imageUrl);
+
+            $conversation = Conversation::findOrFail($request->conversation);
+
+            // Handle Image Upload
+            $imageUrl = $response->get('imageUrl'); 
+
+            $this->createMessage($conversation, $request->input('body'), $imageUrl);
 
             return response()->json([
                 'success' => true,
@@ -95,11 +88,12 @@ class MessageController extends Controller
 
     public function receivedMessage(Request $request): void
     {
-        // Extract relevant Twilio data
-        $localNumber = $request->input('To');
-        $senderNumber = $request->input('From');
-        $messageBody = $request->input('Body');
-        $mediaUrl = $request->input('MediaUrl0');
+        $response = $this->message->receiveMessage($request);
+
+        $localNumber = $response->get('localNumber');
+        $senderNumber = $response->get('senderNumber');
+        $messageBody = $response->get('messageBody');
+        $mediaUrl = $response->get('mediaUrl');
 
         $conversation = Conversation::where('traffic_number', $senderNumber)->whereHas('localNumber', function($query) use ($localNumber) {
             $query->where('number', $localNumber);
@@ -118,20 +112,11 @@ class MessageController extends Controller
         broadcast(new ReceivedMessage($message));
     }
 
-    private function uploadImage(Request $request): ?string
-    {
-        if (!$request->hasFile('image')) {
-            return null;
-        }
 
-        $imagePath = $request->file('image')->store('images', 'public');
-        return Storage::url($imagePath);
-    }
-
-    private function createMessage(Conversation $conversation, ?string $body = null, ?string $imageUrl = null, bool $isIncoming = false): Message
+    private function createMessage(Conversation $conversation, ?string $messageBody, ?string $imageUrl = null, bool $isIncoming = false): Message
     {
         $message = $conversation->messages()->create([
-            'body'          => $body,
+            'body'          => $messageBody,
             'sender_number' => $isIncoming ? $conversation->traffic_number : $conversation->localNumber->number,
         ]);
 

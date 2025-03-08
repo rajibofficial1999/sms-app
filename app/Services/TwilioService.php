@@ -2,13 +2,12 @@
 
 namespace App\Services;
 
-use App\Interfaces\MessageInterface;
 use Exception;
-use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
 
-class TwilioService implements MessageInterface
+class TwilioService
 {
     private Client $client;
     private string $twilioNumber;
@@ -21,12 +20,11 @@ class TwilioService implements MessageInterface
         );
 
         $this->twilioNumber = '+18573672437';
-        
     }
 
     
 
-    public function sendSMS(string $receiverNumber, string $body): Collection
+    public function sendSMS(string $receiverNumber, string $body): array
     {
         try {
             $this->client->messages->create($receiverNumber, [
@@ -43,7 +41,7 @@ class TwilioService implements MessageInterface
         }
     }
 
-    public function sendMMS(string $receiverNumber, string $imageUrl): Collection
+    public function sendMMS(string $receiverNumber, string $imageUrl): array
     {
         try {
             $absoluteImageUrl = asset($imageUrl);
@@ -65,11 +63,26 @@ class TwilioService implements MessageInterface
         }
     }
 
-    private function response(bool $success, ?string $error = null): Collection
+    public function receiveMessage(Request $request): array
     {
-        return collect([
+        $localNumber = $request->input('To');
+        $senderNumber = $request->input('From');
+        $messageBody = $request->input('Body');
+        $mediaUrl = $request->input('MediaUrl');
+
+        return [
+            'localNumber' => $localNumber,
+            'senderNumber' => $senderNumber,
+            'messageBody' => $messageBody,
+            'mediaUrl' => $mediaUrl,
+        ];
+    }
+
+    private function response(bool $success, ?string $error = null): array
+    {
+        return [
             'success' => $success,
             'error' => $error ?? null, 
-        ])->filter(); 
+        ]; 
     }
 }

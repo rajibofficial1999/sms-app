@@ -7,10 +7,6 @@ import Modal from "./Modal";
 import { Button, buttonVariants } from "./ui/button";
 import { Label } from "./ui/label";
 
-interface Conversation {
-    id: number;
-}
-
 interface ChatInputProps {
     conversation: Conversation | null;
 }
@@ -37,6 +33,8 @@ const ChatInput: FC<ChatInputProps> = ({ conversation }) => {
         const formData = new FormData();
         formData.append("body", input);
         formData.append("conversation", String(conversation?.id || 0));
+        formData.append("receiver_number", conversation?.traffic_number ?? "");
+
         if (type === "MMS" && image) formData.append("image", image);
 
         try {

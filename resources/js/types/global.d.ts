@@ -52,7 +52,7 @@ declare global {
 
     interface Conversation {
         id: number;
-        local_number: number;
+        local_number: string;
         traffic_number: string;
         last_message_id: number;
         last_message: Message;

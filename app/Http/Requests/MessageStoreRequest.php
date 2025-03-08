@@ -25,6 +25,7 @@ class MessageStoreRequest extends FormRequest
             'body'         => 'nullable|string',
             'image'        => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'conversation' => 'required|exists:conversations,id',
+            'receiver_number' => 'required|exists:conversations,traffic_number',
         ];
     }
 }
