@@ -39,7 +39,7 @@ const Billings = ({
                                 <div className="shadow p-5 rounded-lg bg-gray-100/15 flex flex-col gap-2 h-32">
                                     <div className="flex justify-between items-center">
                                         <h1 className="font-bold capitalize">
-                                            {subscription.order?.period}
+                                            {subscription.period}
                                         </h1>
                                         <div className="relative flex items-center">
                                             <div
@@ -114,17 +114,9 @@ const Billings = ({
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <h1 className="font-bold capitalize">
-                                            {
-                                                subscription?.order
-                                                    ?.payment_method?.type
-                                            }
+                                            {subscription?.payment_method?.type}
                                         </h1>
-                                        <h1 className=" text-sm">
-                                            {
-                                                subscription?.order
-                                                    ?.account_holder_name
-                                            }
-                                        </h1>
+
                                         <p className="text-xs text-gray-500">
                                             Expires on:{" "}
                                             {format(
@@ -136,8 +128,7 @@ const Billings = ({
                                 </div>
                             </div>
                         </div>
-                        {subscription?.order?.period.toLowerCase() !==
-                            "monthly" && (
+                        {subscription.period.toLowerCase() !== "monthly" && (
                             <Link
                                 href={route("pricing")}
                                 className="text-sm text-gray-500 p-4 sm:p-8"
@@ -151,7 +142,7 @@ const Billings = ({
                         {subscription.is_expired && (
                             <Link
                                 href={route("checkouts.index", {
-                                    period: subscription.order?.period,
+                                    period: subscription.period,
                                 })}
                                 className="text-sm text-gray-500 p-4 sm:p-8"
                             >

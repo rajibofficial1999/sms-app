@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Status;
+use App\Enums\SubscriptionPeriod;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,8 @@ class Subscription extends Model
         'order_id',
         'expired_at',
         'status',
+        'period',
+        'payment_method_id',
     ];
     
     protected function casts(): array
@@ -21,6 +24,7 @@ class Subscription extends Model
         return [
             'status' => Status::class,
             'expired_at' => 'datetime',
+            'period' => SubscriptionPeriod::class,
         ];
     }
 
@@ -38,8 +42,8 @@ class Subscription extends Model
         );
     }
 
-    public function order(): BelongsTo
+    public function paymentMethod(): BelongsTo
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(PaymentMethod::class);
     }
 }

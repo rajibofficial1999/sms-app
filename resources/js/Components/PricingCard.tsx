@@ -27,13 +27,12 @@ export const PricingCard = ({ period, className }: PricingCardProps) => {
                 "relative rounded-2xl bg-white shadow-lg border border-gray-200",
                 {
                     "border-2 border-primary shadow-primary/30":
-                        subscription &&
-                        subscription?.order?.period === period.value,
+                        subscription && subscription.period === period.value,
                 },
                 className
             )}
         >
-            {subscription && subscription?.order?.period === period.value && (
+            {subscription && subscription.period === period.value && (
                 <div className="absolute -top-5 left-0 right-0 mx-auto w-32 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 px-3 py-2 text-sm font-medium text-white">
                     Active
                 </div>
@@ -59,7 +58,7 @@ export const PricingCard = ({ period, className }: PricingCardProps) => {
                 {user ? (
                     <>
                         {subscription &&
-                        subscription?.order?.period === period.value ? (
+                        subscription.period === period.value ? (
                             <Button
                                 disabled
                                 className="w-full py-5 rounded-xl bg-primary/50"

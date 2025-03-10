@@ -1,15 +1,15 @@
+import { CheckoutFormProps } from "@/Pages/Checkout";
+import { cn } from "@/lib/utils";
 import { usePage } from "@inertiajs/react";
-import { Heading1, ScanLine } from "lucide-react";
+import { ScanLine } from "lucide-react";
 import { FC, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { toast } from "sonner";
 import FileInput from "./FileInput";
+import QRCodeGenerator from "./QRCodeGenerator";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import QRCodeGenerator from "./QRCodeGenerator";
-import { CheckoutFormProps } from "@/Pages/Checkout";
-import { cn } from "@/lib/utils";
 
 interface PaymentDetailsFormProps {
     selectedMethod: PaymentMethod | null;

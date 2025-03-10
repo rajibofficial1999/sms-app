@@ -21,13 +21,12 @@ const Checkout = () => {
         null
     );
 
-    const { data, setData, errors, post, processing } =
-        useForm<CheckoutFormProps>({
-            account_holder_name: "",
-            payment_method: null,
-            payment_screenshot: "",
-            period: selectedPackage?.period || "",
-        });
+    const { setData, errors, post, processing } = useForm<CheckoutFormProps>({
+        account_holder_name: "",
+        payment_method: null,
+        payment_screenshot: "",
+        period: selectedPackage?.period || "",
+    });
 
     const [step, setStep] = useState<"payment_method" | "payment_details">(
         "payment_method"
@@ -47,7 +46,7 @@ const Checkout = () => {
     };
 
     const handleSubmit = async () => {
-        post(route("checkouts.store"), {
+        post(route("orders.store"), {
             preserveScroll: true,
             onSuccess: () => console.log("Payment successful"),
         });
@@ -59,8 +58,8 @@ const Checkout = () => {
 
     return (
         <>
-            <MaxWidthWrapper className="mb-8 mt-14 sm:mt-24 text-center">
-                <div className="max-w-sm mx-auto border p-4 rounded-md shadow shadow-primary/20">
+            <MaxWidthWrapper className="text-center h-full !max-h-[calc(100vh-3.5rem)] flex justify-center items-center">
+                <div className="max-w-sm w-full mx-auto border p-4 rounded-md shadow shadow-primary/20">
                     {step === "payment_method" && (
                         <SelectPaymentMethod
                             setSelectedMethod={setSelectedMethod}

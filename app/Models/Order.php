@@ -36,9 +36,4 @@ class Order extends Model
     {
         return $this->belongsTo(PaymentMethod::class);
     }
-
-    public function subscription(): HasOne
-    {
-        return $this->hasOne(subscription::class);
-    }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Admin;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\PaymentMethod;
@@ -17,6 +18,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        Admin::create([
+            'name' => 'Admin User',
+            'email' => 'admin@admin.com',
+            'password' => 'password'
+        ]);
 
         User::factory()->create([
             'name' => 'Test User',

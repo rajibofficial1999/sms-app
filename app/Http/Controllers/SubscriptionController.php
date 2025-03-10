@@ -3,19 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enums\SubscriptionPeriod;
-use App\Http\Requests\OrderStoreRequest;
 use App\Models\PaymentMethod;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Inertia\Response as InertiaResponse;
+use Inertia\Response;
 
 class SubscriptionController extends Controller
 {
-    // : InertiaResponse | RedirectResponse
-    public function index()
+    public function index(): Response | RedirectResponse
     {
         $subscription = Auth::user()->subscription;
 
@@ -24,11 +20,11 @@ class SubscriptionController extends Controller
         }
 
         return Inertia::render('Billings', [
-            'subscription' => $subscription->load('order.paymentMethod'),
+            'subscription' => $subscription->load('paymentMethod'),
         ]);
     }
 
-    public function checkout(): InertiaResponse
+    public function checkout(): Response
     {
         $period = request()->input('period');
 
@@ -43,35 +39,5 @@ class SubscriptionController extends Controller
             'package' => $details,
             'paymentMethods' => $paymentMethods,
         ]);
-    }
-
-    public function store(OrderStoreRequest $request): RedirectResponse
-    {
-        $screenshotPath = '';
-        if($request->hasFile('payment_screenshot')) {
-            $paymentScreenshot = $request->file('payment_screenshot');
-            $screenshotPath = Storage::disk('public')->putFile('images/screenshots',$paymentScreenshot);
-        }
-
-
-        $order = Auth::user()->orders()->create([
-            'account_holder_name' => $request->account_holder_name,
-            'payment_method_id' => $request->payment_method,
-            'payment_screenshot' => $screenshotPath,
-            'period' => $request->period,
-        ]);
-
-        if($request->period === SubscriptionPeriod::MONTHLY->value) {
-            $expired_at = now()->addMonth();
-        }else if($request->period === SubscriptionPeriod::WEEKLY->value) {
-            $expired_at = now()->addWeek();
-        }
-
-        $order->subscription()->create([
-            'user_id' => Auth::user()->id,
-            'expired_at' => $expired_at,
-        ]);
-
-        return redirect()->route('billings');
     }
 }

@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->timestamp('expired_at');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
+            $table->enum('period', ['monthly', 'weekly', 'yearly']);
+            $table->foreignId('payment_method_id')->constrained('payment_methods');
             $table->enum('status', ['pending', 'completed', 'rejected'])->default('pending');
             $table->timestamps();
         });

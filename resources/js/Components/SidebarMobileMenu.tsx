@@ -7,7 +7,6 @@ import {
     MessageSquare,
     Settings,
 } from "lucide-react";
-import { Button } from "./ui/button";
 
 export const sidebarOptions: SidebarOption[] = [
     {
@@ -51,10 +50,9 @@ const SidebarMobileMenu = () => {
                         <Link
                             href={option.href}
                             className={cn(
-                                "text-gray-700  group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold",
+                                "text-gray-700  group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold hover:bg-gray-100",
                                 {
-                                    "bg-gray-100": url === option.href,
-                                    "hover:bg-gray-100": url !== option.href,
+                                    "bg-gray-100": option.href.endsWith(url),
                                 }
                             )}
                         >

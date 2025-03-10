@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\VerificationCodeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -18,7 +21,8 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('/settings', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/billings', [SubscriptionController::class, 'index'])->name('billings');
     Route::get('/checkouts', [SubscriptionController::class, 'checkout'])->name('checkouts.index');
-    Route::post('/checkouts', [SubscriptionController::class, 'store'])->name('checkouts.store');
+
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 
     Route::prefix('messaging')->group(function () {
         Route::get('/', [MessageController::class, 'index'])->name('messages.index');
@@ -29,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function() {
 Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/verify-code', VerificationCodeController::class)->name('verify.code');
 });
 
 require __DIR__.'/auth.php';

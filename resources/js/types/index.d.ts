@@ -14,4 +14,7 @@ export type PageProps<
         period: PeriodValue;
         price: number;
     };
+    orders: any;
+    roles: Role[];
+    permissions: Permission[];
 };

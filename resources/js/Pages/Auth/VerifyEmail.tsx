@@ -1,51 +1,90 @@
-import PrimaryButton from '@/Components/PrimaryButton';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import InputError from "@/Components/InputError";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import GuestLayout from "@/Layouts/GuestLayout";
+import { Head, useForm } from "@inertiajs/react";
+import { LoaderCircle } from "lucide-react";
+import { FormEventHandler } from "react";
 
 export default function VerifyEmail({ status }: { status?: string }) {
-    const { post, processing } = useForm({});
+    const resendForm = useForm({});
 
-    const submit: FormEventHandler = (e) => {
+    const { post, data, setData, errors, processing } = useForm({
+        code: "",
+    });
+
+    const resendCode: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route('verification.send'));
+        resendForm.post(route("verification.send"));
+    };
+
+    const handleSubmit: FormEventHandler = (e) => {
+        e.preventDefault();
+
+        post(route("verify.code"));
     };
 
     return (
         <GuestLayout>
             <Head title="Email Verification" />
 
-            <div className="mb-4 text-sm text-gray-600">
-                Thanks for signing up! Before getting started, could you verify
-                your email address by clicking on the link we just emailed to
-                you? If you didn't receive the email, we will gladly send you
+            <div className="mb-4 text-sm text-gray-600 text-center">
+                If you didn't receive the email, we will gladly send you
                 another.
             </div>
 
-            {status === 'verification-link-sent' && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
+            {status === "verification-link-sent" && (
+                <div className="m2-4 text-center text-sm font-medium text-green-600">
+                    A new verification code has been sent to the email address.
                 </div>
             )}
 
-            <form onSubmit={submit}>
-                <div className="mt-4 flex items-center justify-between">
-                    <PrimaryButton disabled={processing}>
-                        Resend Verification Email
-                    </PrimaryButton>
+            <div className="space-y-2">
+                <form onSubmit={handleSubmit}>
+                    <div>
+                        <Label htmlFor="code">Code</Label>
 
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        <Input
+                            id="code"
+                            type="number"
+                            name="code"
+                            value={data.code}
+                            className="mt-1 block w-full"
+                            autoComplete="username"
+                            onChange={(e) => setData("code", e.target.value)}
+                            placeholder="Enter code"
+                        />
+
+                        <InputError message={errors.code} className="mt-2" />
+                    </div>
+
+                    <div className="mt-4 flex items-center flex-col space-y-2">
+                        <Button
+                            className="w-full rounded-full flex items-center"
+                            disabled={processing}
+                        >
+                            {processing && (
+                                <LoaderCircle className="animate-spin" />
+                            )}
+                            <span>Verify</span>
+                        </Button>
+                    </div>
+                </form>
+                <form onSubmit={resendCode}>
+                    <Button
+                        variant="outline"
+                        className="w-full rounded-full flex items-center"
+                        disabled={resendForm.processing}
                     >
-                        Log Out
-                    </Link>
-                </div>
-            </form>
+                        {resendForm.processing && (
+                            <LoaderCircle className="animate-spin" />
+                        )}
+                        <span>Resend code</span>
+                    </Button>
+                </form>
+            </div>
         </GuestLayout>
     );
 }

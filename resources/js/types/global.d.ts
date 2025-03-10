@@ -97,28 +97,40 @@ declare global {
         payment_method?: PaymentMethod;
         account_holder_name: string;
         period: string;
-        subscription: Subscription;
         created_at: Date;
         updated_at: Date;
         payment_screenshot: string;
         status: Status;
+        created_at: Date;
+        updated_at: Date;
     }
 
     interface Subscription {
         id: number;
         user_id: number;
         user?: User;
-        order_id: number;
-        order?: Order;
         has_subscription: boolean;
         expired_at: string;
         is_expired: boolean;
+        period: string;
         status: Status;
+        payment_method_id: number;
+        payment_method?: PaymentMethod;
     }
 
     interface BreadcrumbItem {
         name: string;
         href?: string;
+    }
+
+    interface Role {
+        id: number;
+        name: string;
+    }
+
+    interface Permission {
+        id: number;
+        name: string;
     }
 
     /* eslint-disable no-var */
