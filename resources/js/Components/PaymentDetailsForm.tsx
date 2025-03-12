@@ -118,7 +118,7 @@ const PaymentDetailsForm: FC<PaymentDetailsFormProps> = ({
                     </Label>
                     <Input
                         type="text"
-                        id="name"
+                        id="holder_name"
                         className={cn("w-full", {
                             "border-red-500 focus:!ring-0 focus:border-red-500":
                                 errors.account_holder_name,
@@ -151,10 +151,20 @@ const PaymentDetailsForm: FC<PaymentDetailsFormProps> = ({
                     >
                         Payment screenshot with transaction ID
                     </Label>
-                    <FileInput setData={setData} errors={errors} />
+                    <FileInput
+                        setData={setData}
+                        errors={errors}
+                        name="payment_screenshot"
+                    />
                     {errors.payment_screenshot && (
                         <p className="text-sm text-red-500">
                             {errors.payment_screenshot}
+                        </p>
+                    )}
+
+                    {errors.area_code && (
+                        <p className="text-sm text-red-500">
+                            {errors.area_code}
                         </p>
                     )}
                 </div>

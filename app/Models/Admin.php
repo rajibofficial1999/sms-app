@@ -2,14 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Jobs\Admin\ResetPasswordJob;
+use App\Jobs\Admin\SendEmailVerificationJob;
+use App\Traits\HasVerificationCodes;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Auth\Passwords\CanResetPassword;
 
-class Admin extends Authenticatable
+class Admin extends Authenticatable implements MustVerifyEmail
 {
-    use Notifiable, HasRoles;
+    use Notifiable, HasRoles, HasVerificationCodes;
 
     // Define the guard for this model to 'admin' to use the custom guard
     protected $guard = 'admin';
@@ -43,21 +48,16 @@ class Admin extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
-    public function createEmailVerificationCode(): int
+    public function sendEmailVerificationNotification()
     {
-        $code = random_int(100000, 999999);
-
-        $this->verification_code()->create([
-            'code' => $code,
-        ]);
-
-        return $code;
+        dispatch(new SendEmailVerificationJob($this));
     }
 
-    public function verification_code(): MorphOne
+    public function sendPasswordResetNotification($token)
     {
-        return $this->morphOne(VerificationCode::class, 'codeable');
+        dispatch(new ResetPasswordJob($token, $this));
     }
 }

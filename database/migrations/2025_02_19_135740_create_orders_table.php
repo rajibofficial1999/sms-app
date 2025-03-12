@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('account_holder_name');
             $table->enum('period', ['monthly', 'weekly', 'yearly']);
+            $table->integer('area_code')->nullable();
+            $table->boolean('is_renewal')->default(false);
             $table->foreignId('payment_method_id')->constrained('payment_methods');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('payment_screenshot');
@@ -27,7 +29,7 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-    {
+    { 
         Schema::dropIfExists('orders');
     }
 };

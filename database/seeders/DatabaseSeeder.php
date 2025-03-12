@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\PaymentMethod;
 use App\Models\PhoneNumber;
 use App\Models\User;
+use Carbon\Carbon;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,19 +23,13 @@ class DatabaseSeeder extends Seeder
         Admin::create([
             'name' => 'Admin User',
             'email' => 'admin@admin.com',
-            'password' => 'password'
+            'password' => 'password',
+            'email_verified_at' => Carbon::now(),
         ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
 
         User::factory(4)->create();
         PhoneNumber::factory(10)->create();
         Conversation::factory(50)->create();
-        Message::factory(100)->create();
         Message::factory(100)->create();
 
         $accountTypes = ['personal', 'business', 'agent', 'regular', 'saving'];
@@ -56,5 +51,10 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         });
+
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
     }
 }

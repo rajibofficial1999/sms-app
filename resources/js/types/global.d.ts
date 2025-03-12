@@ -28,9 +28,19 @@ declare global {
         email: string;
         email_verified_at?: string;
         subscription: Subscription;
-        phone_numbers: PhoneNumber;
+        phone_number: PhoneNumber;
         avatar: string | null;
         conversations: Conversation[];
+        created_at: string;
+        updated_at: string;
+    }
+
+    interface Admin {
+        id: number;
+        name: string;
+        email: string;
+        email_verified_at?: string;
+        avatar: string | null;
         created_at: string;
         updated_at: string;
     }
@@ -96,6 +106,8 @@ declare global {
         payment_method_id: number;
         payment_method?: PaymentMethod;
         account_holder_name: string;
+        area_code: Number;
+        is_renewal: boolean;
         period: string;
         created_at: Date;
         updated_at: Date;

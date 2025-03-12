@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::prefix('admin')
                 ->name('admin.')
                 ->middleware('web')
-                ->group(base_path('routes/admin.php'));
+                ->group(base_path('routes/admin/web.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -24,7 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
-        //
+        
+        $middleware->appendToGroup('admin.auth', \App\Http\Middleware\Admin\AuthMiddleware::class);
+        $middleware->appendToGroup('admin.guest', \App\Http\Middleware\Admin\GuestMiddleware::class);
+        $middleware->appendToGroup('admin.verified', \App\Http\Middleware\Admin\EnsureEmailIsVerified::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

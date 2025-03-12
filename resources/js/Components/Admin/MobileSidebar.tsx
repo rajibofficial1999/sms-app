@@ -1,5 +1,4 @@
 import ApplicationLogo from "@/Components/ApplicationLogo";
-import SubSidebar from "@/Components/SubSidebar";
 import { Button } from "@/Components/ui/button";
 import { Dialog, Transition } from "@headlessui/react";
 import { Link, usePage } from "@inertiajs/react";
@@ -45,9 +44,6 @@ const MobileSidebar = () => {
                                 >
                                     <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                                         <div className="h-full w-full flex justify-start max-w-80  bg-white shadow-xl">
-                                            {url === "/messaging" && (
-                                                <SubSidebar />
-                                            )}
                                             <div className="flex h-full flex-col w-full overflow-hidden py-6">
                                                 <div className="px-4 sm:px-6">
                                                     <div className="flex items-start justify-end">

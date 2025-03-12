@@ -6,7 +6,6 @@ use App\Enums\Status;
 use App\Enums\SubscriptionPeriod;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -15,6 +14,8 @@ class Order extends Model
         'payment_method_id',
         'account_holder_name',
         'payment_screenshot',
+        'area_code',
+        'is_renewal',
         'period',
         'status',
     ];

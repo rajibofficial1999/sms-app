@@ -18,6 +18,8 @@ class VerificationCodeController extends Controller
         $user = Auth::user();
         $dbVerificationCode = $user->verification_code()->where('code', $request->code)->first();
 
+        
+
          if (!$dbVerificationCode) {
             throw ValidationException::withMessages([
                 'code' => 'Invalid verification code'

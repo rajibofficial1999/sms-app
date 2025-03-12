@@ -5,23 +5,23 @@ namespace App\Traits;
 use App\Models\VerificationCode;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-trait VerificationCodes
+trait HasVerificationCodes
 {
     public function createEmailVerificationCode(): int
     {
         $code = random_int(100000, 999999);
-        $token = bin2hex(random_bytes(15));
 
-        $this->verification_code()->updateOrCreate(
+        VerificationCode::updateOrCreate(
             [
                 'codeable_id' => $this->id, 
-                'codeable_type' => static::class
+                'codeable_type' => static::class,
             ],
             [
                 'code' => $code,
-                'token' => $token,
+                'is_used' => false,
             ]
         );
+
 
         return $code;
     }

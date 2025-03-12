@@ -5,7 +5,7 @@ import { Label } from "@/Components/ui/label";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, ReactNode } from "react";
 
 export default function VerifyEmail({ status }: { status?: string }) {
     const resendForm = useForm({});
@@ -27,7 +27,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
     };
 
     return (
-        <GuestLayout>
+        <>
             <Head title="Email Verification" />
 
             <div className="mb-4 text-sm text-gray-600 text-center">
@@ -53,7 +53,14 @@ export default function VerifyEmail({ status }: { status?: string }) {
                             value={data.code}
                             className="mt-1 block w-full"
                             autoComplete="username"
-                            onChange={(e) => setData("code", e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 6) {
+                                    setData("code", value);
+                                } else {
+                                    e.target.blur();
+                                }
+                            }}
                             placeholder="Enter code"
                         />
 
@@ -85,6 +92,8 @@ export default function VerifyEmail({ status }: { status?: string }) {
                     </Button>
                 </form>
             </div>
-        </GuestLayout>
+        </>
     );
 }
+
+VerifyEmail.layout = (page: ReactNode) => <GuestLayout children={page} />;

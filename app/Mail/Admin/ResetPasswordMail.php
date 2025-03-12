@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\Admin;
 
-use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -10,14 +10,14 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendEmailVerificationEmail extends Mailable
+class ResetPasswordMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(public User $user, public int $code)
+     public function __construct(public Admin $user, public string $url)
     {}
 
     /**
@@ -26,7 +26,7 @@ class SendEmailVerificationEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Email Verification',
+            subject: 'Reset Password Mail',
         );
     }
 
@@ -36,7 +36,7 @@ class SendEmailVerificationEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mails.email-verification',
+            view: 'mails.password-reset',
         );
     }
 

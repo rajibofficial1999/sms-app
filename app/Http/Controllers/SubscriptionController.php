@@ -38,6 +38,7 @@ class SubscriptionController extends Controller
         return Inertia::render('Checkout', [
             'package' => $details,
             'paymentMethods' => $paymentMethods,
+            'userPhoneNumber' => Auth::user()->phoneNumber,
         ]);
     }
 }

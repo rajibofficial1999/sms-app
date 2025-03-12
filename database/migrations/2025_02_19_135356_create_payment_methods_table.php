@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
             $table->string('type');
-            $table->bigInteger('account_number');
+            $table->string('account_number');
             $table->enum('account_type', ['personal', 'business', 'agent', 'regular', 'saving']);
             $table->string('logo');
             $table->boolean('status')->default(true);

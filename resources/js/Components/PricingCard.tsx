@@ -39,12 +39,12 @@ export const PricingCard = ({ period, className }: PricingCardProps) => {
             )}
 
             <div className="p-5">
-                <h3 className="my-2 text-center font-display text-2xl font-bold capitalize">
+                <h3 className="my-2 text-center font-display text-xl font-bold capitalize">
                     {period.value}
                 </h3>
 
-                <p className="my-3 font-display text-5xl font-semibold">
-                    ${period?.price}
+                <p className="my-3 font-display text-3xl font-semibold">
+                    BDT {period?.price}
                 </p>
 
                 {periodTextMap[period.value] && (

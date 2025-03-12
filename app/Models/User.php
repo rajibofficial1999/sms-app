@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
+use App\Jobs\ResetPasswordJob;
 use App\Jobs\SendEmailVerificationJob;
-use App\Traits\VerificationCodes;
+use App\Traits\HasVerificationCodes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, VerificationCodes;
+    use HasFactory, Notifiable, HasVerificationCodes;
 
     /**
      * The attributes that are mass assignable.
@@ -71,5 +71,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         dispatch(new SendEmailVerificationJob($this));
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        dispatch(new ResetPasswordJob($token, $this));
     }
 }

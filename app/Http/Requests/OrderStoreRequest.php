@@ -28,6 +28,8 @@ class OrderStoreRequest extends FormRequest
             'payment_method' => 'required|integer|exists:payment_methods,id',
             'payment_screenshot' => 'required|mimes:png,jpg',
             'period' => ['required', new Enum(SubscriptionPeriod::class)],  
+            'area_code' => 'nullable|numeric|digits:3',
+            'is_renewal' => 'nullable|boolean'
         ];
     }
 }

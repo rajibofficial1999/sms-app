@@ -41,7 +41,7 @@ const SelectPaymentMethod: FC<SelectPaymentMethodProps> = ({
                             <div className="flex flex-col gap-2">
                                 <div className="flex items-center justify-start gap-2">
                                     <img
-                                        src={paymentMethod.logo}
+                                        src={`/storage/${paymentMethod?.logo}`}
                                         alt="payment-type"
                                         className="size-8 rounded-lg"
                                     />

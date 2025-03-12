@@ -1,4 +1,4 @@
-import { Button } from "@/Components/ui/button";
+import { Button, buttonVariants } from "@/Components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,6 +9,7 @@ import { Input } from "@/Components/ui/input";
 import { ChevronDown, Filter, Plus, Search } from "lucide-react";
 import { FC, ReactNode } from "react";
 import Pagination from "./Pagination";
+import { Link } from "@inertiajs/react";
 
 interface TableProps {
     isActionRequired: boolean;
@@ -47,7 +48,7 @@ const Table: FC<TableProps> = ({
                                 <Input
                                     id="simple-search"
                                     className="block w-full !pl-10"
-                                    placeholder="Search by name"
+                                    placeholder="Search..."
                                     onChange={(e) =>
                                         handleSearch(e.target.value)
                                     }
@@ -57,10 +58,15 @@ const Table: FC<TableProps> = ({
                     </div>
                     <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                         {addItemUrl && (
-                            <Button>
+                            <Link
+                                href={addItemUrl}
+                                className={buttonVariants({
+                                    variant: "default",
+                                })}
+                            >
                                 <Plus className="h-3.5 w-3.5" />
-                                Add product
-                            </Button>
+                                Add
+                            </Link>
                         )}
                         {showFilters && (
                             <div className="flex items-center space-x-3 w-full md:w-auto">
@@ -140,7 +146,7 @@ const Table: FC<TableProps> = ({
                     <span className="text-sm font-normal text-gray-500">
                         Showing
                         <span className="font-semibold text-gray-900 mx-1">
-                            {data.per_page}
+                            {data.data.length}
                         </span>
                         of
                         <span className="font-semibold text-gray-900 mx-1">
