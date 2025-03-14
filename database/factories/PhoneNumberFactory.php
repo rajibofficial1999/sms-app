@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +18,7 @@ class PhoneNumberFactory extends Factory
     {
         return [
             'number' => fake()->phoneNumber(),
-            'user_id' => User::inRandomOrder()->first()->id,
+            'area_code' => random_int(111, 999),
         ];
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Conversation extends Model
 {
@@ -19,9 +20,16 @@ class Conversation extends Model
         'avatar_color',
     ];
 
+    protected $appends = ['is_blocked'];
+
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function unReadMessages()
+    {
+        return $this->messages;
     }
 
     public function localNumber(): BelongsTo
@@ -70,5 +78,17 @@ class Conversation extends Model
         ];
 
         return $colors[array_rand($colors)];
+    }
+
+    public function blockList(): HasOne
+    {
+        return $this->hasOne(BlockList::class);
+    }
+
+    public function isBlocked(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->blockList()->exists(),
+        );
     }
 }

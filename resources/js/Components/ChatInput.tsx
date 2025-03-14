@@ -1,19 +1,28 @@
+import { RootState } from "@/lib/store";
+import { setMessages } from "@/lib/store/conversationFormSlice";
+import { router, usePage } from "@inertiajs/react";
 import axios from "axios";
 import { Image, LoaderCircle, SendHorizonal, Smile } from "lucide-react";
-import { ChangeEvent, FC, KeyboardEvent, useRef, useState } from "react";
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
 import TextareaAutosize from "react-textarea-autosize";
 import Modal from "./Modal";
 import { Button, buttonVariants } from "./ui/button";
 import { Label } from "./ui/label";
 
 interface ChatInputProps {
-    conversation: Conversation | null;
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
-const ChatInput: FC<ChatInputProps> = ({ conversation }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ setMessages }) => {
+    const { conversation } = usePage().props;
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
+
+    const { trafficNumber, conversation: stateConversation } = useSelector(
+        (state: RootState) => state.conversationForm
+    );
 
     const [input, setInput] = useState<string>("");
     const [image, setImage] = useState<File | null>(null);
@@ -23,6 +32,15 @@ const ChatInput: FC<ChatInputProps> = ({ conversation }) => {
         SMS: false,
         MMS: false,
     });
+    const [newTrafficNumber, setNewTrafficNumber] = useState<string | null>(
+        null
+    );
+
+    const resetForm = () => {
+        setInput("");
+        setIsModalOpen(false);
+        textareaRef.current?.focus();
+    };
 
     const sendMessage = async (type: "MMS" | "SMS") => {
         if ((type === "SMS" && !input.trim()) || (type === "MMS" && !image))
@@ -30,22 +48,43 @@ const ChatInput: FC<ChatInputProps> = ({ conversation }) => {
 
         setLoading((prev) => ({ ...prev, [type]: true }));
 
+        let receiverNumber = conversation?.traffic_number;
+        let conversationId = conversation?.id || "";
+
+        if (newTrafficNumber && !stateConversation) {
+            receiverNumber = newTrafficNumber;
+            conversationId = "";
+        } else if (newTrafficNumber && stateConversation) {
+            receiverNumber = stateConversation.traffic_number;
+            conversationId = stateConversation.id;
+        }
+
         const formData = new FormData();
         formData.append("body", input);
-        formData.append("conversation", String(conversation?.id || 0));
-        formData.append("receiver_number", conversation?.traffic_number ?? "");
+        formData.append("conversation", String(conversationId));
+        formData.append("receiver_number", receiverNumber ?? "");
 
         if (type === "MMS" && image) formData.append("image", image);
 
         try {
             const { data } = await axios.post("/api/messages", formData, {
-                withCredentials: true, // Ensure session is sent
+                withCredentials: true,
             });
-            console.log(data);
 
-            setInput("");
-            setIsModalOpen(false);
-            textareaRef.current?.focus();
+            if (data.success) {
+                resetForm();
+
+                if (newTrafficNumber) {
+                    router.get(
+                        route("messages.show", data.message.conversation_id)
+                    );
+                } else {
+                    setMessages((prevMessges) => [
+                        data.message,
+                        ...prevMessges,
+                    ]);
+                }
+            }
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
@@ -78,6 +117,10 @@ const ChatInput: FC<ChatInputProps> = ({ conversation }) => {
             imageInputRef.current.value = "";
         }
     };
+
+    useEffect(() => {
+        setNewTrafficNumber(trafficNumber);
+    }, [trafficNumber]);
 
     return (
         <>

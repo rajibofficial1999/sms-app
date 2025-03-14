@@ -24,7 +24,9 @@ const SidebarProfileDropdown = () => {
             <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-x-2">
                     <Avatar className="!size-10">
-                        <AvatarImage src={admin.avatar || ""} />
+                        <AvatarImage
+                            src={admin.avatar ? `/storage/${admin.avatar}` : ""}
+                        />
                         <AvatarFallback>
                             <User className="size-5" />
                         </AvatarFallback>

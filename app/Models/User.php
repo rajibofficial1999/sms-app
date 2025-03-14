@@ -27,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'status',
         'email_verified_at'
     ];
 
@@ -76,5 +77,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordResetNotification($token)
     {
         dispatch(new ResetPasswordJob($token, $this));
+    }
+
+    public function blockLists(): HasMany
+    {
+        return $this->hasMany(BlockList::class);
     }
 }

@@ -1,7 +1,15 @@
 import { cn } from "@/lib/utils";
 import { Link, usePage } from "@inertiajs/react";
 
-import { LayoutDashboard } from "lucide-react";
+import {
+    Banknote,
+    DoorOpen,
+    LayoutDashboard,
+    ListOrdered,
+    NotebookTabs,
+    UserCog,
+    Users,
+} from "lucide-react";
 import SidebarProfileDropdown from "./SidebarProfileDropdown";
 
 export const adminSidebarOptions: SidebarOption[] = [
@@ -13,21 +21,39 @@ export const adminSidebarOptions: SidebarOption[] = [
     },
     {
         id: 2,
-        name: "Orders",
-        href: route("admin.orders.index"),
-        Icon: LayoutDashboard,
+        name: "Users",
+        href: route("admin.users.index"),
+        Icon: Users,
     },
     {
         id: 3,
-        name: "Payment methods",
-        href: route("admin.payment-methods.index"),
-        Icon: LayoutDashboard,
+        name: "Orders",
+        href: route("admin.orders.index"),
+        Icon: ListOrdered,
     },
     {
         id: 4,
+        name: "Payment methods",
+        href: route("admin.payment-methods.index"),
+        Icon: Banknote,
+    },
+    {
+        id: 5,
+        name: "Phone numbers",
+        href: route("admin.phone-numbers.index"),
+        Icon: NotebookTabs,
+    },
+    {
+        id: 6,
+        name: "Admin users",
+        href: route("admin.admin-users.index"),
+        Icon: UserCog,
+    },
+    {
+        id: 7,
         name: "Roles",
         href: route("admin.roles.index"),
-        Icon: LayoutDashboard,
+        Icon: DoorOpen,
     },
 ];
 
@@ -45,7 +71,7 @@ const AppSidebar = () => {
                                 as="button"
                                 href={option.href}
                                 className={cn(
-                                    "text-gray-700 w-full group flex items-center gap-x-1 rounded-md p-2 text-sm leading-6 font-semibold my-1 px-3 md:px-4 hover:bg-gray-100",
+                                    "text-gray-700 text-nowrap w-full group flex items-center gap-x-1 rounded-md p-2 text-sm leading-6 font-semibold my-1 px-3 md:px-4 hover:bg-gray-100",
                                     {
                                         "bg-gray-100":
                                             option.href.endsWith(url),

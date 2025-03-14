@@ -1,21 +1,19 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Link, usePage } from "@inertiajs/react";
-import { Menu, UserPlus, X } from "lucide-react";
-import { FC, Fragment, useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
 import ApplicationLogo from "./ApplicationLogo";
+import ChatListHeader from "./ChatListHeader";
 import SidebarChatList from "./SidebarChatList";
 import SidebarMobileMenu from "./SidebarMobileMenu";
 import SubSidebar from "./SubSidebar";
-import { Button } from "./ui/button";
 
-interface MobileSidebarProps {
-    chatLists: Conversation[];
-}
+const MobileSidebar = () => {
+    const { url } = usePage();
 
-const MobileSidebar: FC<MobileSidebarProps> = ({ chatLists }) => {
     const [open, setOpen] = useState<boolean>(false);
 
-    const { url } = usePage();
+    const isMessagingUrl = new RegExp(`^/messaging(?:/\\d+)?$`).test(url);
 
     useEffect(() => {
         setOpen(false);
@@ -49,8 +47,8 @@ const MobileSidebar: FC<MobileSidebarProps> = ({ chatLists }) => {
                                 >
                                     <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                                         <div className="h-full w-full flex justify-start max-w-80  bg-white shadow-xl">
-                                            {url === "/messaging" && (
-                                                <SubSidebar />
+                                            {isMessagingUrl && (
+                                                <SubSidebar className="max-w-12" />
                                             )}
                                             <div className="flex h-full flex-col w-full overflow-hidden py-6">
                                                 <div className="px-4 sm:px-6">
@@ -79,29 +77,15 @@ const MobileSidebar: FC<MobileSidebarProps> = ({ chatLists }) => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="relative mt-3 flex-1">
+                                                <div className="relative mt-1 flex-1">
                                                     {/* Content */}
 
-                                                    {url === "/messaging" ? (
+                                                    {isMessagingUrl ? (
                                                         <>
-                                                            <div className="flex justify-between items-center px-4 mt-2">
-                                                                <p className="text-xs font-semibold leading-6 text-gray-400">
-                                                                    Your chats
-                                                                </p>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                >
-                                                                    <UserPlus />
-                                                                </Button>
-                                                            </div>
+                                                            <ChatListHeader />
 
-                                                            <nav className="flex flex-1 flex-col">
-                                                                <SidebarChatList
-                                                                    chatLists={
-                                                                        chatLists
-                                                                    }
-                                                                />
+                                                            <nav className="flex flex-1 flex-col mt-2">
+                                                                <SidebarChatList />
                                                             </nav>
                                                         </>
                                                     ) : (

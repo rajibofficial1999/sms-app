@@ -35,10 +35,10 @@ class SubscriptionController extends Controller
 
         $paymentMethods = PaymentMethod::active()->get();
 
-        return Inertia::render('Checkout', [
+        return Inertia::render('Checkout/Index', [
             'package' => $details,
             'paymentMethods' => $paymentMethods,
-            'userPhoneNumber' => Auth::user()->phoneNumber,
+            'userPhoneNumber' => Auth::user()->phoneNumber()->active()->first(),
         ]);
     }
 }

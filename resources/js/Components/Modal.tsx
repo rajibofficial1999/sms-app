@@ -5,6 +5,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { Dispatch, FC, ReactNode, SetStateAction } from "react";
 
 interface ModalProps {
@@ -13,6 +14,7 @@ interface ModalProps {
     setIsOpen?: Dispatch<SetStateAction<boolean>>;
     onClose?: () => void;
     children?: ReactNode;
+    preventDefaultClose?: boolean;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -21,8 +23,12 @@ const Modal: FC<ModalProps> = ({
     setIsOpen,
     onClose,
     children,
+    preventDefaultClose = false,
 }) => {
     const closeModal = () => {
+        if (preventDefaultClose) {
+            return;
+        }
         onClose && onClose();
 
         if (setIsOpen) {
@@ -39,7 +45,11 @@ const Modal: FC<ModalProps> = ({
                 }
             }}
         >
-            <DialogContent className={className}>
+            <DialogContent
+                className={cn(className, {
+                    "[&>button]:hidden": preventDefaultClose,
+                })}
+            >
                 <DialogHeader>
                     <DialogTitle className="sr-only">DialogTitle</DialogTitle>
                     <DialogDescription className="sr-only">

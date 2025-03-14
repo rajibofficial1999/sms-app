@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\Status;
 use App\Enums\SubscriptionPeriod;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Order extends Model
 {
@@ -15,10 +17,11 @@ class Order extends Model
         'account_holder_name',
         'payment_screenshot',
         'area_code',
-        'is_renewal',
         'period',
         'status',
     ];
+
+    protected $appends = ['is_renewal'];
 
     protected function casts(): array
     {
@@ -36,5 +39,12 @@ class Order extends Model
     public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);
+    }
+
+    public function isRenewal(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => optional($this->user?->phoneNumber)->exists(),
+        );
     }
 }

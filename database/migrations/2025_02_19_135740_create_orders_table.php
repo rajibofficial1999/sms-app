@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('account_holder_name');
             $table->enum('period', ['monthly', 'weekly', 'yearly']);
             $table->integer('area_code')->nullable();
-            $table->boolean('is_renewal')->default(false);
             $table->foreignId('payment_method_id')->constrained('payment_methods');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('payment_screenshot');

@@ -1,42 +1,32 @@
-import Table from "@/Components/Admin/Table";
-import TableAction from "@/Components/Admin/TableAction";
+import Table from "@/Components/Table";
+import TableAction from "@/Components/TableAction";
 import { Badge } from "@/Components/ui/badge";
-import { Button } from "@/Components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/Components/ui/dropdown-menu";
 import AppLayout from "@/Layouts/Admin/AppLayout";
 import { cn } from "@/lib/utils";
-import { Head, Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import axios from "axios";
 import debounce from "debounce";
 import { ToggleRight } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
-import { toast } from "sonner";
 
 const headers = [
-    "Method Type",
+    "Method name",
     "Account number",
     "Account Type",
     "Logo",
     "Status",
 ];
 
-const Orders = () => {
+const PaymentMethods = () => {
     const { paymentMethods } = usePage().props;
     const [fetchedPaymentMethods, setFetchedPaymentMethods] =
         useState<any>(paymentMethods);
 
     const handleSearch = debounce(async (query) => {
         try {
-            const { data } = await axios.post(
-                route("admin.payment-methods.search"),
-                {
-                    key: query,
-                }
+            const { data } = await axios.get(
+                route("admin.payment-methods.search", { search: query })
             );
 
             setFetchedPaymentMethods(data.paymentMethods);
@@ -58,7 +48,11 @@ const Orders = () => {
                     headers={headers}
                     data={fetchedPaymentMethods}
                     handleSearch={handleSearch}
-                    addItemUrl={route("admin.payment-methods.create")}
+                    searchBy="name"
+                    addButton={{
+                        url: route("admin.payment-methods.create"),
+                        text: "Add payment method",
+                    }}
                 >
                     {fetchedPaymentMethods.data.map((method: PaymentMethod) => (
                         <tr className="border-b" key={method.id}>
@@ -121,6 +115,6 @@ const Orders = () => {
     );
 };
 
-Orders.layout = (page: ReactNode) => <AppLayout children={page} />;
+PaymentMethods.layout = (page: ReactNode) => <AppLayout children={page} />;
 
-export default Orders;
+export default PaymentMethods;

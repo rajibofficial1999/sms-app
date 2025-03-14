@@ -9,8 +9,6 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Illuminate\Auth\Passwords\CanResetPassword;
 
 class Admin extends Authenticatable implements MustVerifyEmail
 {
@@ -18,6 +16,7 @@ class Admin extends Authenticatable implements MustVerifyEmail
 
     // Define the guard for this model to 'admin' to use the custom guard
     protected $guard = 'admin';
+    protected $guard_name = 'admin';
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +27,9 @@ class Admin extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'email_verified_at'
+        'avatar',
+        'status',
+        'email_verified_at',
     ];
 
     /**

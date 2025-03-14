@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('body')->nullable();
             $table->foreignId('conversation_id')->constrained('conversations')->cascadeOnDelete();
             $table->string('sender_number');
+            $table->boolean('isUnread')->default(true);
             $table->timestamps();
         });
     }

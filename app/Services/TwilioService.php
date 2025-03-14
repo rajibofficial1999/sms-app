@@ -10,7 +10,6 @@ use Twilio\Rest\Client;
 class TwilioService
 {
     private Client $client;
-    private string $twilioNumber;
 
     public function __construct()
     {
@@ -18,17 +17,15 @@ class TwilioService
             config('services.twilio.account_sid'),
             config('services.twilio.account_token')
         );
-
-        $this->twilioNumber = '+18573672437';
     }
 
     
 
-    public function sendSMS(string $receiverNumber, string $body): array
+    public function sendSMS(string $receiverNumber, string $senderNumber, string $body): array
     {
         try {
             $this->client->messages->create($receiverNumber, [
-                'from' => $this->twilioNumber,
+                'from' => $senderNumber,
                 'body' => $body,
             ]);
 
@@ -41,16 +38,13 @@ class TwilioService
         }
     }
 
-    public function sendMMS(string $receiverNumber, string $imageUrl): array
+    public function sendMMS(string $receiverNumber, string $senderNumber, string $imageUrl): array
     {
         try {
-            $absoluteImageUrl = asset($imageUrl);
-
-
             $this->client->messages->create($receiverNumber, [
-                'from' => $this->twilioNumber,
+                'from' => $senderNumber,
                 "mediaUrl" => [
-                    $absoluteImageUrl,
+                    $imageUrl,
                 ],
             ]);
 

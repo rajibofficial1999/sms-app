@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { FC, useRef, useState } from "react";
+import { FC, useRef } from "react";
 
 interface MessagesProps {
     messages: Message[];
-    chatNumber: string | null;
+    conversation: Conversation | null;
 }
 
-const Messages: FC<MessagesProps> = ({ messages, chatNumber }) => {
+const Messages: FC<MessagesProps> = ({ messages, conversation }) => {
     const scrollDownRef = useRef<HTMLDivElement | null>(null);
 
     const formatTimestamp = (timestamp: string) => {
@@ -23,7 +23,8 @@ const Messages: FC<MessagesProps> = ({ messages, chatNumber }) => {
 
             {messages &&
                 messages.map((message) => {
-                    const isLocalNumber = message.sender_number !== chatNumber;
+                    const isLocalNumber =
+                        message.sender_number !== conversation?.traffic_number;
 
                     const isTextMessage = !!message.body;
 

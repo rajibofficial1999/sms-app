@@ -8,8 +8,8 @@ import { Link, router } from "@inertiajs/react";
 import { Ellipsis, LoaderCircle, SquarePen, Trash } from "lucide-react";
 import { ReactNode, useState } from "react";
 import { toast } from "sonner";
-import Modal from "../Modal";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
+import Modal from "./Modal";
 
 interface TableActionProps {
     item: any;

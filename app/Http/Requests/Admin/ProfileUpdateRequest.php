@@ -25,7 +25,9 @@ class ProfileUpdateRequest extends FormRequest
                 'email',
                 'max:255',
                 Rule::unique(Admin::class)->ignore(Auth()->guard('admin')->user()->id),
+                
             ],
+            'avatar' => 'nullable|mimes:png,jpg',
         ];
     }
 }

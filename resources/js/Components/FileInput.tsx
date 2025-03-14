@@ -1,12 +1,15 @@
 import { cn } from "@/lib/utils";
 import { Image, X } from "lucide-react";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
 interface FileInputProps {
     setData: (field: any, value: File | null) => void;
     errors: any;
     className?: string;
     name: string;
+    data?: {
+        [key: string]: any;
+    };
 }
 
 const FileInput: FC<FileInputProps> = ({
@@ -14,6 +17,7 @@ const FileInput: FC<FileInputProps> = ({
     errors,
     className,
     name,
+    data,
 }) => {
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
@@ -29,6 +33,20 @@ const FileInput: FC<FileInputProps> = ({
             setData(name, file);
         }
     };
+
+    const resetFileInput = () => {
+        setPreviewImageUrl(null);
+
+        if (inputFile.current) {
+            inputFile.current.value = "";
+        }
+    };
+
+    useEffect(() => {
+        if (data && !data[name]) {
+            resetFileInput();
+        }
+    }, [data]);
 
     return (
         <div
@@ -78,20 +96,15 @@ const FileInput: FC<FileInputProps> = ({
                             className="absolute -top-3 -right-3 z-10 size-6 bg-red-500 rounded-full text-white flex justify-center items-center"
                             onClick={() => {
                                 setData(name, null);
-                                setPreviewImageUrl(null);
-
-                                if (inputFile.current) {
-                                    inputFile.current.value = "";
-                                }
+                                resetFileInput();
                             }}
                         >
                             <X className="size-4" />
                         </button>
                         <img
-                            className="object-cover"
+                            className="object-cover rounded-md"
                             src={previewImageUrl}
                             alt="Preview"
-                            className="rounded-md"
                         />
                     </div>
                 </div>

@@ -7,6 +7,7 @@ import { ReactNode } from "react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import DashboardBreadcrumb from "@/Components/DashboardBreadcrumb";
 import { ScrollArea } from "@/Components/ui/scroll-area";
+import BlockLists from "./Partials/BlockLists";
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -44,6 +45,10 @@ const Edit = ({
 
                         <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
                             <UpdatePasswordForm className="max-w-xl" />
+                        </div>
+
+                        <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                            <BlockLists className="max-w-xl" />
                         </div>
 
                         <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">

@@ -24,8 +24,15 @@ class MessageStoreRequest extends FormRequest
         return [
             'body'         => 'nullable|string',
             'image'        => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'conversation' => 'required|exists:conversations,id',
-            'receiver_number' => 'required|exists:conversations,traffic_number',
+            'conversation' => 'nullable|exists:conversations,id',
+            'receiver_number' => 'required|phone:US',
         ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'receiver_number.phone' => 'The :attribute field must be a valid phone number.',
+        ];            
     }
 }

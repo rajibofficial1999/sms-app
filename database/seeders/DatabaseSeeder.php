@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,15 +21,33 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        Admin::create([
+        $admin = Admin::create([
             'name' => 'Admin User',
             'email' => 'admin@admin.com',
             'password' => 'password',
             'email_verified_at' => Carbon::now(),
         ]);
 
+        $adminRole = Role::create([
+            'name' => 'admin',
+            'guard_name' => 'admin',
+        ]);
+
+        $admin->assignRole($adminRole);
+
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+
         User::factory(4)->create();
-        PhoneNumber::factory(10)->create();
+        $users = User::all();
+        $users->each(function ($user) {
+            PhoneNumber::factory()->create([
+                'user_id' => $user->id,
+            ]);
+        });
+
         Conversation::factory(50)->create();
         Message::factory(100)->create();
 
@@ -51,10 +70,5 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         });
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
     }
 }

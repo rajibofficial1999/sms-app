@@ -1,5 +1,5 @@
-import Table from "@/Components/Admin/Table";
-import TableAction from "@/Components/Admin/TableAction";
+import Table from "@/Components/Table";
+import TableAction from "@/Components/TableAction";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import {
@@ -32,10 +32,16 @@ const headers = [
     "Status",
 ];
 
-const filters: Status[] = ["pending", "completed", "rejected"];
+type Filter = Status | "all" | null;
+
+interface OrderForOrderPage extends Order {
+    payment_method_name: string;
+    user_name: string;
+    user_renewal_number: string | null;
+}
 
 const Orders = () => {
-    const { orders } = usePage().props;
+    const { orders, statuses } = usePage().props;
     const [fetchedOrders, setFetchedOrders] = useState<any>(orders);
     const [show, setShowModal] = useState<boolean>(false);
     const [approvalOrder, setApprovalOrder] = useState<Order | null>(null);
@@ -54,9 +60,9 @@ const Orders = () => {
 
     const handleSearch = debounce(async (query) => {
         try {
-            const { data } = await axios.post(route("admin.orders.search"), {
-                key: query,
-            });
+            const { data } = await axios.get(
+                route("admin.orders.search", { search: query })
+            );
 
             setFetchedOrders(data.orders);
         } catch (error) {
@@ -64,11 +70,16 @@ const Orders = () => {
         }
     }, 300);
 
-    const handleFilter = async (status: Status) => {
+    const handleFilter = async (status: Filter) => {
+        if (status === "all") {
+            status = null;
+        }
         try {
-            const { data } = await axios.post(route("admin.orders.filter"), {
-                status: status,
-            });
+            const { data } = await axios.get(
+                route("admin.orders.filter", {
+                    status: status,
+                })
+            );
 
             setFetchedOrders(data.orders);
         } catch (error) {
@@ -77,7 +88,7 @@ const Orders = () => {
     };
 
     const { put, data, setData, errors, processing, reset } = useForm({
-        phone: "",
+        number: "",
     });
 
     const closeModal = () => {
@@ -104,6 +115,8 @@ const Orders = () => {
         }
     };
 
+    const filters: Filter[] = ["all", ...statuses];
+
     useEffect(() => {
         setFetchedOrders(orders);
     }, [orders]);
@@ -119,50 +132,40 @@ const Orders = () => {
                     filters={filters}
                     handleSearch={handleSearch}
                     handleFilter={handleFilter}
+                    searchBy="user name"
+                    filterBy="status"
                 >
-                    {fetchedOrders.data.map((order: Order) => (
+                    {fetchedOrders.data.map((order: OrderForOrderPage) => (
                         <tr className="border-b" key={order.id}>
                             <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
-                                {order?.account_holder_name}
+                                {order.account_holder_name}
                             </td>
                             <td className="px-4 py-3 capitalize">
-                                {order?.period}
+                                {order.period}
                             </td>
                             <td className="px-4 py-3 capitalize">
-                                {order?.payment_method?.type}
+                                {order?.payment_method_name}
                             </td>
                             <td className="px-4 py-3 capitalize">
-                                {order.area_code ? (
-                                    <Badge className="text-nowrap">
-                                        {String(order.area_code)}
-                                    </Badge>
-                                ) : (
-                                    <Badge className="bg-yellow-500 hover:bg-yellow-500">
-                                        N/A
-                                    </Badge>
-                                )}
+                                {order.area_code
+                                    ? String(order.area_code)
+                                    : "..."}
                             </td>
                             <td className="px-4 py-3">
-                                {order.is_renewal ? (
-                                    <Badge>
-                                        {order?.user?.phone_number?.number}
-                                    </Badge>
-                                ) : (
-                                    <Badge className="bg-yellow-500 hover:bg-yellow-500">
-                                        N/A
-                                    </Badge>
-                                )}
+                                {order.is_renewal
+                                    ? order.user_renewal_number
+                                    : "..."}
                             </td>
-                            <td className="px-4 py-3">{order?.user?.name}</td>
+                            <td className="px-4 py-3">{order.user_name}</td>
                             <td className="px-4 py-3 size-10">
                                 <img
                                     className=" object-contain rounded-md cursor-pointer border"
-                                    src={`/storage/${order?.payment_screenshot}`}
+                                    src={`/storage/${order.payment_screenshot}`}
                                     alt="Payment Screenshot"
                                 />
                             </td>
                             <td className="px-4 py-3 capitalize">
-                                {order?.status !== "pending" ? (
+                                {order.status !== "pending" ? (
                                     <Badge
                                         className={cn({
                                             "bg-green-500 hover:bg-green-500":
@@ -171,7 +174,7 @@ const Orders = () => {
                                                 order?.status === "rejected",
                                         })}
                                     >
-                                        {order?.status}
+                                        {order.status}
                                     </Badge>
                                 ) : (
                                     <DropdownMenu>
@@ -234,11 +237,11 @@ const Orders = () => {
                         name="phone"
                         className="mt-1 w-full"
                         placeholder="+1 (555) 555-5555"
-                        value={data.phone}
-                        onChange={(e) => setData("phone", e.target.value)}
+                        value={data.number}
+                        onChange={(e) => setData("number", e.target.value)}
                     />
 
-                    <InputError message={errors.phone} className="mt-2" />
+                    <InputError message={errors.number} className="mt-2" />
 
                     <div className="mt-6 flex justify-end">
                         <Button

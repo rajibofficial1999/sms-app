@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import conversationSlice from "./conversationSlice";
+import conversationFormSlice from "./conversationFormSlice";
 
 export const store = configureStore({
     reducer: {
-        conversation: conversationSlice,
+        conversationForm: conversationFormSlice,
     },
 });
 

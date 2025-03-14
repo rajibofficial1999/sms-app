@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class VerificationCodeController extends Controller
@@ -13,13 +13,13 @@ class VerificationCodeController extends Controller
     public function __invoke(Request $request)
     {
         $request->validate([
-            'code' => 'required|numeric'
+            'code' => 'required|numeric',
+            'email' => 'required|email|exists:admins,email',
         ]);
 
-        $user = Auth::guard('admin')->user();
-        $dbVerificationCode = $user->verification_code()->where('code', $request->code)->first();
-
+        $user = Admin::whereEmail($request->email)->first();
         
+        $dbVerificationCode = $user->verification_code()->where('code', $request->code)->first();
 
          if (!$dbVerificationCode) {
             throw ValidationException::withMessages([
@@ -50,6 +50,6 @@ class VerificationCodeController extends Controller
             'email_verified_at' => Carbon::now()
         ]);
         
-        return redirect()->route('admin.dashboard');
+        return redirect()->back();
     }
 }

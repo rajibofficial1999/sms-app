@@ -73,6 +73,11 @@ class PaymentMethodController extends Controller
         if($request->hasFile('logo')) {
             $logo = $request->file('logo');
             $validated['logo'] = $logo->store('images/paymenttypes', 'public');
+
+            if (Storage::disk('public')->exists($paymentMethod->logo)) {
+                Storage::disk('public')->delete($paymentMethod->logo);
+            }
+
         }else{
             unset($validated['logo']);
         }
@@ -103,11 +108,11 @@ class PaymentMethodController extends Controller
        return redirect()->back();
     }
 
-    public function search(Request $request): JsonResponse
+    public function search(?string $search = null): JsonResponse
     {
-        $search = $request->key;
-
-        $paymentMethods = PaymentMethod::where('type', 'like', "%$search%")->paginate(10);
+        $paymentMethods = PaymentMethod::query()->when($search, function($query) use ($search) {
+            $query->where('type', 'like', "%$search%");
+        })->latest()->paginate(10);
 
         return response()->json([
             'paymentMethods' => $paymentMethods,

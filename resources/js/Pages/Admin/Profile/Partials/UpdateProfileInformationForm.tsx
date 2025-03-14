@@ -1,3 +1,4 @@
+import FileInput from "@/Components/FileInput";
 import InputError from "@/Components/InputError";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
@@ -17,16 +18,23 @@ export default function UpdateProfileInformation({
 }) {
     const admin = usePage().props.auth.admin;
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, post, errors, processing, recentlySuccessful } =
         useForm({
+            _method: "PATCH",
             name: admin.name,
             email: admin.email,
+            avatar: null,
         });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route("admin.profile.update"));
+        post(route("admin.profile.update"), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setData("avatar", null);
+            },
+        });
     };
 
     return (
@@ -81,6 +89,20 @@ export default function UpdateProfileInformation({
                     />
 
                     <InputError className="mt-2" message={errors.name} />
+                </div>
+
+                <div>
+                    <Label htmlFor="avatar">Avatar</Label>
+
+                    <FileInput
+                        errors={errors}
+                        setData={setData}
+                        name="avatar"
+                        data={data}
+                        className="mt-1"
+                    />
+
+                    <InputError className="mt-2" message={errors.avatar} />
                 </div>
 
                 <div className="flex items-center gap-4">

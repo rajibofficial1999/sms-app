@@ -3,46 +3,63 @@ import ChatNavbar from "@/Components/ChatNavbar";
 import Messages from "@/Components/Messages";
 import WelcomeBoard from "@/Components/WelcomeBoard";
 import ChatLayout from "@/Layouts/ChatLayout";
-import { pusher } from "@/lib/pusher";
+import { RootState } from "@/lib/store";
+import { setShowForm } from "@/lib/store/conversationFormSlice";
 import { Head, usePage } from "@inertiajs/react";
 import { ReactNode, useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 const Messaging = () => {
     const { conversation, messages } = usePage().props;
-    const [initialMessages, setInitialMessages] = useState<Message[]>(messages);
+
+    const [initialMessages, setInitialMessages] = useState<Message[]>([]);
+    const [initialConversation, setInitialConversation] =
+        useState<Conversation | null>(null);
+
+    const dispatch = useDispatch();
+
+    const {
+        showForm,
+        conversation: stateConversation,
+        messages: stateMessages,
+    } = useSelector((state: RootState) => state.conversationForm);
 
     useEffect(() => {
-        const channel = pusher.subscribe("chat");
+        if (stateConversation && stateMessages && showForm) {
+            setInitialConversation(stateConversation);
+            setInitialMessages(stateMessages.data);
+        } else {
+            setInitialConversation(conversation);
+            setInitialMessages(messages?.data);
+        }
+    }, [stateConversation, stateMessages, showForm]);
 
-        channel.bind("message.received", function (data: { message: Message }) {
-            console.log(conversation?.id, data.message.conversation_id);
+    useEffect(() => {
+        if (conversation && messages) {
+            setInitialConversation(conversation);
+            setInitialMessages(messages?.data);
+        }
 
-            if (
-                Number(conversation?.id) ===
-                Number(data.message.conversation_id)
-            ) {
-                setInitialMessages((prev) => [data.message, ...prev]);
-            }
-        });
-    }, []);
+        dispatch(setShowForm(false));
+    }, [conversation, messages]);
 
     return (
         <>
-            {conversation && <ChatNavbar />}
+            {(conversation || showForm) && <ChatNavbar />}
 
             <Head title="Messaging" />
 
             <div className="flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-8rem)] md:max-h-[calc(100vh-4rem)]">
-                {conversation ? (
+                {conversation || showForm ? (
                     <>
                         <Messages
-                            chatNumber={conversation?.traffic_number as string}
+                            conversation={initialConversation}
                             messages={initialMessages}
                         />
 
-                        <ChatInput
-                            conversation={conversation as Conversation}
-                        />
+                        {(!conversation?.is_blocked || showForm) && (
+                            <ChatInput setMessages={setInitialMessages} />
+                        )}
                     </>
                 ) : (
                     <WelcomeBoard />

@@ -12,77 +12,84 @@ use App\Models\PhoneNumber;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class MessageController extends Controller
 {
     public function __construct(protected MessageInterface $message) {}
 
-    public function index()
+    public function index(): Response
     {
         $user = Auth::user();
 
         $number = $user->phoneNumber;
 
-        $chatLists = $number->conversations()->with('lastMessage')->get();
+        $chatLists = $this->getChatLists($number);
 
         return Inertia::render('Messaging', [
             'chatLists' => $chatLists,
         ]);
     }
 
-    public function getMessages(Conversation $conversation)
+    public function getMessages(Conversation $conversation): Response
     {
-        $messages = $conversation->messages()->with('image')->latest()->get();
-
         $user = Auth::user();
+        $userNumber = $user->phoneNumber;
 
-        $number = $user->phoneNumber;
+        $messagesQuery = Message::where('conversation_id', $conversation->id);
 
-        $chatLists = $number->conversations()->with('lastMessage')->get();
+        $messages = $messagesQuery->with('image')->latest()->paginate(50);
+        
+        $messagesQuery->where('sender_number', '!=', $userNumber->number)
+            ->where('isUnread', true)
+            ->update(['isUnread' => false]);
 
         return Inertia::render('Messaging', [
-            'chatLists' => $chatLists,
+            'chatLists' => $this->getChatLists($userNumber),
             'conversation' => $conversation,
-            'messages' => $messages,
+            'messages' => $messages ,
         ]);
     }
 
     public function store(MessageStoreRequest $request): JsonResponse
     {
         $authUser = Auth::user();
-
         if (!$authUser instanceof User) {
-            return response()->json(['success' => false, 'message' => 'User not authenticated'], 401);
+            return $this->forbiddenResponse('User not authenticated');
         }
 
         if (!$this->isValidSubscription($authUser)) {
-            return response()->json(['success' => false, 'message' => 'Don\'t have subscription'], 401);
+            return $this->forbiddenResponse('Don\'t have subscription');
+        }
+
+        $conversation = Conversation::find($request->conversation);
+        if ($this->isBlockedConversation($authUser, $conversation, $request->receiver_number)) {
+            return $this->forbiddenResponse('The number has blocked');
         }
 
         $response = $this->message->sendMessage($request); 
-        
-        if ($response->get('success')) {
-
-            $conversation = Conversation::findOrFail($request->conversation);
-
-            // Handle Image Upload
-            $imageUrl = $response->get('imageUrl'); 
-
-            $this->createMessage($conversation, $request->input('body'), $imageUrl);
-
+        if (!$response->get('success')) {
             return response()->json([
-                'success' => true,
-                'message' => 'Message sent successfully',
-            ], 201);
+                'success' => false,
+                'message' => "Message couldn't be sent",
+                'error' => $response->get('error'),
+            ], 500);
         }
 
+        if (!$conversation) {
+            $conversation = $this->createConversation($authUser->phoneNumber, $request->receiver_number);
+        }
+
+        // get Image Url
+        $imageUrl = $response->get('imageUrl'); 
+
         return response()->json([
-            'success' => false,
-            'message' => "Message couldn't be sent",
-            'error'   => $response->get('error'),
-        ], 500);
+            'success' => true,
+            'message' => $this->createMessage($conversation, $request->input('body'), $imageUrl),
+        ], 201);
     }
 
     public function receivedMessage(Request $request): void
@@ -94,25 +101,52 @@ class MessageController extends Controller
         $messageBody = $response->get('messageBody');
         $mediaUrl = $response->get('mediaUrl');
 
-        $conversation = Conversation::where('traffic_number', $senderNumber)->whereHas('localNumber', function($query) use ($localNumber) {
-            $query->where('number', $localNumber);
-        })->first();
+        $phoneNumber = PhoneNumber::where('number', $localNumber)->first();
+        if (!$phoneNumber) {
+            return;
+        }
 
-        if(!$conversation) {
-            $localNumber = PhoneNumber::where('number', $localNumber)->first();
+        $conversation = Conversation::where('traffic_number', $senderNumber)
+            ->where('local_number_id', $phoneNumber->id)
+            ->first();
 
-            $conversation = $localNumber->conversations()->create([
-                'traffic_number' => $senderNumber,
-            ]);
+        if ($this->isBlockedConversation($phoneNumber->user, $conversation, $senderNumber)) {
+            return;
+        }
+
+        if (!$conversation) {
+            $conversation = $this->createConversation($phoneNumber,  $senderNumber);
         }
 
         $message = $this->createMessage($conversation, $messageBody, $mediaUrl, true);
-
         broadcast(new ReceivedMessage($message));
     }
 
+    public function getMessagesByNumber(string $trafficNumber)
+    {
+        $conversation = Conversation::where('traffic_number', $trafficNumber)->first();
+        if(!$conversation) {
+            return response()->json([
+                'success' => false,
+                'messages' => null,
+                'conversation'    => null
+            ]);
+        }
 
-    private function createMessage(Conversation $conversation, ?string $messageBody, ?string $imageUrl = null, bool $isIncoming = false): Message
+        return response()->json([
+             'success' => true,
+            'messages' => $conversation->messages()->with('image')->latest()->paginate(50),
+            'conversation'    => $conversation
+        ]);
+    }
+
+
+    private function createMessage(
+        Conversation $conversation, 
+        ?string $messageBody, 
+        ?string $imageUrl = null, 
+        bool $isIncoming = false
+    ): Message
     {
         $message = $conversation->messages()->create([
             'body'          => $messageBody,
@@ -132,12 +166,74 @@ class MessageController extends Controller
         return $message->load('image');
     }
 
-    public function isValidSubscription(User $authUser): bool
+    private function isValidSubscription(User $authUser): bool
     {
-        if(!$authUser->subscription || $authUser->subscription->is_expired || $authUser->subscription->status !== Status::COMPLETED) {
+        $subscription = $authUser->subscription;
+
+        if(!$subscription || $subscription->is_expired || $subscription->status !== Status::COMPLETED) {
             return false;
         }
 
         return true;    
+    }
+
+    private function createConversation(PhoneNumber $userNumber, string $traffic_number): Conversation
+    {
+        return Conversation::create([
+                'traffic_number' => $traffic_number,
+                'local_number_id' => $userNumber->id
+        ]);
+    }
+
+    private function getChatLists(?PhoneNumber $userPhoneNumber): Collection
+    {
+        if (!$userPhoneNumber) {
+            return collect();
+        }
+
+        return $userPhoneNumber->conversations()
+                        ->leftJoin('messages', function ($join) use($userPhoneNumber) {
+                            $join->on('messages.conversation_id', '=', 'conversations.id')
+                                ->where('messages.isUnread', true)
+                                ->where('messages.sender_number', '!=', optional($userPhoneNumber)->number);
+                        })
+                        ->leftJoin('messages as last_messages', function ($join) {
+                            $join->on('last_messages.id', '=', 'conversations.last_message_id');
+                        })   
+                        ->groupBy(
+                            'conversations.id',
+                            'conversations.local_number_id',
+                            'conversations.traffic_number',
+                            'conversations.last_message_id',
+                            'conversations.avatar_color',
+                            'conversations.created_at',
+                            'conversations.updated_at',
+                            'last_messages.id',
+                            'last_messages.body',
+                            'last_messages.created_at'
+                        )
+                        ->selectRaw('
+                            conversations.*, 
+                            COUNT(messages.id) AS unread_messages_count,
+                            last_messages.body AS last_message_body,
+                            last_messages.created_at AS last_message_time
+                        ')
+                        ->latest()
+                        ->get();
+                        
+    }
+
+    private function forbiddenResponse(string $message): JsonResponse
+    {
+        return response()->json(['success' => false, 'message' => $message], 403);
+    }
+
+    private function isBlockedConversation(User $authUser, ?Conversation $conversation, string $checkingNumber): bool
+    {
+        if ($conversation && $conversation->isBlocked) {
+            return true;
+        }
+
+        return $authUser->blockLists()->where('blocked_number', $checkingNumber)->exists();
     }
 }

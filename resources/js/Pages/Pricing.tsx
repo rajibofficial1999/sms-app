@@ -2,7 +2,7 @@ import MaxWidthWrapper from "@/Components/MaxWidthWrapper";
 import { PricingCard } from "@/Components/PricingCard";
 import RootLayout from "@/Layouts/RootLayout";
 import { cn } from "@/lib/utils";
-import { usePage } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import { ReactNode, useEffect, useState } from "react";
 
 const Pricing = () => {
@@ -17,6 +17,8 @@ const Pricing = () => {
 
     return (
         <>
+            <Head title="Pricing" />
+
             <MaxWidthWrapper className="mb-8 mt-24 text-center ">
                 <div className="mx-auto mb-10 sm:max-w-lg">
                     <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl">

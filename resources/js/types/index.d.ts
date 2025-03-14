@@ -5,9 +5,9 @@ export type PageProps<
         user: User;
         admin: Admin;
     };
-    chatLists: Conversation[];
+    chatLists: ChatList[];
     conversation: Conversation;
-    messages: Message[];
+    messages: any;
     subscription: Subscription;
     periods: Period[];
     package: {
@@ -16,6 +16,7 @@ export type PageProps<
     };
     accountTypes: string[];
     orders: any;
+    statuses: Status[];
     roles: Role[];
     permissions: Permission[];
     success: {
@@ -24,4 +25,14 @@ export type PageProps<
     paymentMethods: PaymentMethod[];
     paymentMethod: PaymentMethod;
     userPhoneNumber: PhoneNumber | null;
+    phoneNumbers: PhoneNumber[];
+    users: User[];
+    messageCharts: MessageChart[];
+    totalMessagesChart: TotalMessagesChart[];
+    trafficCharts: TrafficChart[];
+    totalTrafficsChart: TotalTrafficsChart[];
+    blockLists: BlockList[];
+    admins: any;
+    role_names: string[];
+    admin: Admin;
 };

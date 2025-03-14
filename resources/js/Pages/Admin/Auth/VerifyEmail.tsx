@@ -5,13 +5,17 @@ import { Label } from "@/Components/ui/label";
 import GuestLayout from "@/Layouts/Admin/GuestLayout";
 import { Head, useForm, usePage } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
-import { FormEventHandler, ReactNode, useState } from "react";
+import { FormEventHandler, ReactNode } from "react";
 
 export default function VerifyEmail({ status }: { status?: string }) {
     const resendForm = useForm({});
+    const {
+        auth: { admin },
+    } = usePage().props;
 
     const { post, data, setData, errors, processing } = useForm({
         code: "",
+        email: admin.email || "",
     });
 
     const resendCode: FormEventHandler = (e) => {
@@ -65,6 +69,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                         />
 
                         <InputError message={errors.code} className="mt-2" />
+                        <InputError message={errors.email} className="mt-2" />
                     </div>
 
                     <div className="mt-4 flex items-center flex-col space-y-2">

@@ -33,6 +33,7 @@ declare global {
         conversations: Conversation[];
         created_at: string;
         updated_at: string;
+        status: boolean;
     }
 
     interface Admin {
@@ -43,6 +44,9 @@ declare global {
         avatar: string | null;
         created_at: string;
         updated_at: string;
+        status: boolean;
+        roles?: Role[];
+        permissions?: Permission[];
     }
 
     interface SidebarOption {
@@ -56,6 +60,18 @@ declare global {
         id: number;
         number: string;
         user_id: number;
+        user?: User;
+        status: boolean;
+        created_at: string;
+        updated_at: string;
+        area_code: number;
+    }
+
+    interface BlockList {
+        id: number;
+        conversation_id: number | null;
+        user_id: number;
+        blocked_number: string;
         created_at: string;
         updated_at: string;
     }
@@ -69,7 +85,14 @@ declare global {
         avatar_color: string;
         created_at: string;
         updated_at: string;
+        is_blocked: boolean;
         messages: Message[];
+    }
+
+    interface ChatList extends Conversation {
+        unread_messages_count: number;
+        last_message_body: string | null;
+        last_message_time: string | null;
     }
 
     interface Message {
@@ -143,6 +166,29 @@ declare global {
     interface Permission {
         id: number;
         name: string;
+    }
+
+    interface MessageChart {
+        time: string;
+        sent: number;
+        received: number;
+    }
+
+    interface TrafficChart {
+        time: string;
+        traffics: number;
+    }
+
+    interface TotalMessagesChart {
+        name: string;
+        messages: number;
+        fill?: string;
+    }
+
+    interface TotalTrafficsChart {
+        name: string;
+        traffics: number;
+        fill?: string;
     }
 
     /* eslint-disable no-var */

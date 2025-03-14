@@ -14,11 +14,11 @@ const ChatLayout = ({ children }: PropsWithChildren) => {
         <>
             <Toaster />
             <div className="w-full flex h-screen">
-                <div className="md:hidden">
+                <div className="lg:hidden">
                     <MobileSidebar />
                 </div>
 
-                <div className="hidden md:flex h-full w-full max-w-72 grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white">
+                <div className="hidden lg:flex h-full w-full flex-nowrap max-w-72 grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white">
                     <div className="flex items-center px-4 mt-2 gap-2">
                         <ApplicationLogo className="size-7" />
                         LOgo
@@ -29,7 +29,7 @@ const ChatLayout = ({ children }: PropsWithChildren) => {
                     </nav>
                 </div>
 
-                <aside className="max-h-screen w-full mt-14 md:mt-0 p-4">
+                <aside className="max-h-screen w-full mt-14 lg:mt-0 p-4">
                     {children}
                 </aside>
             </div>

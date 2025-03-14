@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Validation\Rules\Enum;
@@ -20,12 +21,24 @@ use Illuminate\Validation\ValidationException;
 class OrderController extends Controller
 {
 
-     public function index(): Response
+    public function index(): Response
     {
-        $orders = Order::with('user.phoneNumber', 'paymentMethod')->latest()->paginate(10);
+        $orders = Order::query()
+            ->leftJoin('payment_methods', 'payment_methods.id', '=', 'orders.payment_method_id')
+            ->leftJoin('users', 'users.id', '=', 'orders.user_id')
+            ->leftJoin('phone_numbers', 'phone_numbers.user_id', '=', 'users.id') 
+            ->select(
+                'orders.*', 
+                'payment_methods.type as payment_method_name',
+                'users.name as user_name',
+                'phone_numbers.number as user_renewal_number'
+            ) 
+            ->latest('orders.created_at') 
+            ->paginate(10);
 
         return Inertia::render('Admin/Orders', [
             'orders' => $orders,
+            'statuses' => Status::cases(),
         ]);
     }
     
@@ -58,12 +71,12 @@ class OrderController extends Controller
         return redirect()->back();
     }
 
-    public function search(Request $request): JsonResponse
+    public function search(?string $search = null): JsonResponse
     {
-        $search = $request->key;
-
-        $orders = Order::with('user.phoneNumber', 'paymentMethod')->whereHas('user', function($query) use ($search) {
-            $query->where('name', 'like', "%$search%");
+        $orders = Order::with('user.phoneNumber', 'paymentMethod')->when($search, function($query) use ($search) {
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%$search%");
+            });
         })->latest()->paginate(10);
 
         return response()->json([
@@ -71,15 +84,11 @@ class OrderController extends Controller
         ]);
     }
 
-    public function filter(Request $request): JsonResponse
+    public function filter(?string $status = null): JsonResponse
     {
-          $request->validate([
-            'status' => ['required', new Enum(Status::class)],
-        ]);
-
-        $status = $request->status;
-
-        $orders = Order::with('user.phoneNumber', 'paymentMethod')->whereStatus($status)->latest()->paginate(10);
+        $orders = Order::with('user.phoneNumber', 'paymentMethod')->when($status, function($query) use ($status) {
+            $query->whereStatus($status);
+        })->latest()->paginate(10);
 
         return response()->json([
             'orders' => $orders,
@@ -88,29 +97,38 @@ class OrderController extends Controller
 
     public function approveNewOrder(Request $request, Order $order)
     {
-        $request->validate([
-            'phone' => 'required|string|max:255',
+         $request->validate([
+            'number' => ['required', 'string', 'max:255', 'phone:US', Rule::unique('phone_numbers')],
+        ], [
+            'number.phone' => 'Invalid phone number',
         ]);
 
-        $phoneNumber = PhoneNumber::where('user_id', $order->user_id)->first();
+        $phoneNumber = PhoneNumber::active()->where('user_id', $order->user_id)->first();
+
         if($phoneNumber) {
             throw ValidationException::withMessages([
-                'phone' => 'User already has a phone number',
+                'number' => 'User already has a phone number',
             ]);
         }
         
         PhoneNumber::create([
             'user_id' => $order->user_id,
-            'number' => $request->phone,
+            'number' => $request->number,
+            'area_code' => $order->area_code,
         ]);
 
         $order->update([
             'status' => Status::COMPLETED,
         ]);
 
-        Order::whereStatus(Status::PENDING)->delete();
-
+        // Update subscription
         $this->createOrUpdateSubscription($order);
+
+        // Delete inactive phone numbers
+        PhoneNumber::inActive()->where('user_id', $order->user_id)->delete();
+
+        // Delete all pending orders of the user
+        Order::whereStatus(Status::PENDING)->delete();
 
         return redirect()->back();
     }
