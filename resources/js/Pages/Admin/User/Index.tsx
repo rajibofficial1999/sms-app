@@ -24,7 +24,11 @@ const headers = [
 type Filter = Status | "subscribed" | "unsubscribed" | "all" | null;
 
 const PhoneNumbers = () => {
-    const { users, statuses } = usePage().props;
+    const {
+        users,
+        statuses,
+        auth: { admin },
+    } = usePage().props;
     const [fetchedUsers, setFetchedUsers] = useState<any>(users);
 
     const handleSearch = debounce(async (query) => {
@@ -149,23 +153,30 @@ const PhoneNumbers = () => {
                                 item={user}
                                 routeName="admin.users"
                                 showEdit={false}
+                                showDelete={
+                                    !!admin.can_only.delete_user ||
+                                    admin.is_super_admin
+                                }
                             >
-                                <DropdownMenuItem asChild>
-                                    <Link
-                                        as="button"
-                                        method="put"
-                                        href={route(
-                                            "admin.users.status",
-                                            user.id
-                                        )}
-                                        className="w-full cursor-pointer"
-                                    >
-                                        <ToggleRight className="size-4" />{" "}
-                                        {user.status
-                                            ? "Deactivate"
-                                            : "Activate"}
-                                    </Link>
-                                </DropdownMenuItem>
+                                {admin.is_super_admin ||
+                                    (admin.can_only.change_user_status && (
+                                        <DropdownMenuItem asChild>
+                                            <Link
+                                                as="button"
+                                                method="put"
+                                                href={route(
+                                                    "admin.users.status",
+                                                    user.id
+                                                )}
+                                                className="w-full cursor-pointer"
+                                            >
+                                                <ToggleRight className="size-4" />{" "}
+                                                {user.status
+                                                    ? "Deactivate"
+                                                    : "Activate"}
+                                            </Link>
+                                        </DropdownMenuItem>
+                                    ))}
                             </TableAction>
                         </tr>
                     ))}

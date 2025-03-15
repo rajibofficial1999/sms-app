@@ -19,7 +19,10 @@ const headers = [
 ];
 
 const PaymentMethods = () => {
-    const { paymentMethods } = usePage().props;
+    const {
+        paymentMethods,
+        auth: { admin },
+    } = usePage().props;
     const [fetchedPaymentMethods, setFetchedPaymentMethods] =
         useState<any>(paymentMethods);
 
@@ -52,6 +55,9 @@ const PaymentMethods = () => {
                     addButton={{
                         url: route("admin.payment-methods.create"),
                         text: "Add payment method",
+                        show:
+                            admin.is_super_admin ||
+                            admin.can_only.create_payment_method,
                     }}
                 >
                     {fetchedPaymentMethods.data.map((method: PaymentMethod) => (
@@ -89,23 +95,35 @@ const PaymentMethods = () => {
                             <TableAction
                                 item={method}
                                 routeName="admin.payment-methods"
+                                showDelete={
+                                    !!admin.can_only.delete_payment_method ||
+                                    admin.is_super_admin
+                                }
+                                showEdit={
+                                    !!admin.can_only.update_payment_method ||
+                                    admin.is_super_admin
+                                }
                             >
-                                <DropdownMenuItem asChild>
-                                    <Link
-                                        as="button"
-                                        method="put"
-                                        href={route(
-                                            "admin.payment-methods.status",
-                                            method.id
-                                        )}
-                                        className="w-full cursor-pointer"
-                                    >
-                                        <ToggleRight className="size-4" />{" "}
-                                        {method.status
-                                            ? "Deactivate"
-                                            : "Activate"}
-                                    </Link>
-                                </DropdownMenuItem>
+                                {(admin.is_super_admin ||
+                                    admin.can_only
+                                        .change_payment_method_status) && (
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            as="button"
+                                            method="put"
+                                            href={route(
+                                                "admin.payment-methods.status",
+                                                method.id
+                                            )}
+                                            className="w-full cursor-pointer"
+                                        >
+                                            <ToggleRight className="size-4" />{" "}
+                                            {method.status
+                                                ? "Deactivate"
+                                                : "Activate"}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
                             </TableAction>
                         </tr>
                     ))}

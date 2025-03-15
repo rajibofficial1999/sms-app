@@ -4,7 +4,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { Ellipsis, LoaderCircle, SquarePen, Trash } from "lucide-react";
 import { ReactNode, useState } from "react";
 import { toast } from "sonner";

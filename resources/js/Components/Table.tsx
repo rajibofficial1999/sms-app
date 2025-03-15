@@ -7,7 +7,7 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import { Input } from "@/Components/ui/input";
 import { ChevronDown, Filter, Plus, Search } from "lucide-react";
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import Pagination from "./Pagination";
 import { Link } from "@inertiajs/react";
 
@@ -20,6 +20,7 @@ interface TableProps {
     addButton?: {
         url: string;
         text: string;
+        show?: boolean;
     };
     handleSearch?: (search: string) => void;
     handleFilter?: (value: any) => void;
@@ -45,6 +46,15 @@ const Table: FC<TableProps> = ({
 }) => {
     const showFilters = !!filters;
     const showSearch = !!handleSearch;
+    const [showAddButton, setshowAddButton] = useState(false);
+
+    useEffect(() => {
+        if (addButton) {
+            setshowAddButton(addButton.show as boolean);
+        } else {
+            setshowAddButton(true);
+        }
+    }, [addButton]);
 
     return (
         <div className="mx-auto max-w-screen-xl">
@@ -77,7 +87,7 @@ const Table: FC<TableProps> = ({
                         )}
                     </div>
                     <div className="w-full sm:w-auto flex flex-col sm:flex-row space-y-2 sm:space-y-0 items-stretch sm:items-center justify-end md:space-x-3 flex-shrink-0">
-                        {addButton && (
+                        {addButton && showAddButton && (
                             <Link
                                 href={addButton.url}
                                 className={buttonVariants({

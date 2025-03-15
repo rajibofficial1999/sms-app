@@ -28,11 +28,24 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => Carbon::now(),
         ]);
 
+        $superAdmin = Admin::create([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@admin.com',
+            'password' => 'password',
+            'email_verified_at' => Carbon::now(),
+        ]);
+
         $adminRole = Role::create([
-            'name' => 'admin',
+            'name' => 'Admin',
             'guard_name' => 'admin',
         ]);
 
+        $superAdminRole = Role::create([
+            'name' => 'Super admin',
+            'guard_name' => 'admin',
+        ]);
+
+        $superAdmin->assignRole($superAdminRole);
         $admin->assignRole($adminRole);
 
         User::factory()->create([

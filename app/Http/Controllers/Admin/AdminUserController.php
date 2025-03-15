@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Redirect;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminStoreRequest;
 use App\Http\Requests\Admin\AdminUpdateRequest;
@@ -10,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,9 +19,15 @@ use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
-    public function index(): Response
+    public function index(): Response | RedirectResponse
     {
-        $admins = Admin::with('roles')->whereNot('id', Auth::guard('admin')->user()->id)->paginate(10);
+        if ($this->cannot('viewAny')) {
+            return Redirect::unauthorized();
+        }
+        
+        $admins = Admin::with('roles')
+                    ->whereNot('id', Auth::guard('admin')->user()->id)
+                    ->paginate(10);
 
         return Inertia::render('Admin/Admin/Index', [
             'admins' => $admins,
@@ -27,8 +35,12 @@ class AdminUserController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(): Response | RedirectResponse
     {
+        if ($this->cannot('create')) {
+            return Redirect::unauthorized();
+        }
+
         return Inertia::render('Admin/Admin/Create', [
             'roles' => Role::all(),
             'email' => request()->get('email'),
@@ -37,6 +49,10 @@ class AdminUserController extends Controller
 
     public function store(AdminStoreRequest $request): RedirectResponse
     {
+        if ($this->cannot('create')) {
+            return Redirect::unauthorized();
+        }
+
         $validated = $request->validated();
         $roles = $request->roles;
 
@@ -58,8 +74,12 @@ class AdminUserController extends Controller
         //
     }
 
-    public function edit(Admin $admin_user): Response
+    public function edit(Admin $admin_user): Response | RedirectResponse
     {
+        if ($this->cannot('update', $admin_user)) {
+            return Redirect::unauthorized();
+        }
+
         return Inertia::render('Admin/Admin/Edit', [
             'roles' => Role::all(),
             'admin' => $admin_user->load('roles'),
@@ -67,8 +87,12 @@ class AdminUserController extends Controller
         ]);
     }
   
-    public function update(AdminUpdateRequest $request, Admin $admin_user)
+    public function update(AdminUpdateRequest $request, Admin $admin_user): RedirectResponse
     {
+        if ($this->cannot('update', $admin_user)) {
+            return Redirect::unauthorized();
+        }
+
         $validated = $request->validated();
         $roles = $request->roles;
 
@@ -100,6 +124,10 @@ class AdminUserController extends Controller
     
     public function destroy(Admin $admin_user): RedirectResponse
     {
+        if ($this->cannot('delete', $admin_user)) {
+            return Redirect::unauthorized();
+        }
+
         if (Storage::disk('public')->exists($admin_user->avatar || "")) {
             Storage::disk('public')->delete($admin_user->avatar || "");
         }
@@ -109,8 +137,12 @@ class AdminUserController extends Controller
         return redirect()->back();
     }
 
-     public function toggleStatus(Admin $admin): RedirectResponse
-    {        
+    public function toggleStatus(Admin $admin): RedirectResponse
+    {
+        if ($this->cannot('status', $admin)) {  
+            return Redirect::unauthorized();
+        }    
+          
        $admin->update([
             'status' => !$admin->status,
         ]);
@@ -142,4 +174,12 @@ class AdminUserController extends Controller
         ]);
     }
 
+    private function cannot(string $operation, ?Admin $admin_user = null): bool
+    {
+        if (!$admin_user) {
+            return Gate::forUser(Auth::guard('admin')->user())->denies($operation, Admin::class);
+        }
+
+        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, $admin_user);
+    }
 }

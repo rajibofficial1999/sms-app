@@ -12,6 +12,10 @@ declare global {
     type PeriodValue = "monthly" | "weekly" | "yearly";
     type Status = "pending" | "completed" | "rejected";
 
+    interface AdminPermissions {
+        [key: string]: boolean;
+    }
+
     interface Period {
         value: PeriodValue;
         price: number;
@@ -47,6 +51,8 @@ declare global {
         status: boolean;
         roles?: Role[];
         permissions?: Permission[];
+        can_only: AdminPermissions;
+        is_super_admin: boolean;
     }
 
     interface SidebarOption {

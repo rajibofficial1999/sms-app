@@ -21,10 +21,22 @@ use Spatie\Permission\Models\Role;
 
 class AuthServiceProvider extends ServiceProvider
 {
+    protected $policies = [
+        Role::class => RolePolicy::class,
+    ];
+
     /**
      * Register services.
      */
     public function register(): void
+    {
+
+    }
+
+    /**
+     * Bootstrap services.
+     */
+    public function boot(): void
     {
         Gate::policy(Admin::class, AdminPolicy::class);
         Gate::policy(Order::class, OrderPolicy::class);
@@ -34,13 +46,5 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Permission::class, PermissionPolicy::class);
-    }
-
-    /**
-     * Bootstrap services.
-     */
-    public function boot(): void
-    {
-        //
     }
 }

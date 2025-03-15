@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\PaymentAccountTypes;
+use App\Helpers\Redirect;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentMethod;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -16,8 +19,12 @@ use Inertia\Response;
 
 class PaymentMethodController extends Controller
 {
-    public function index(): Response
+    public function index(): Response | RedirectResponse
     {
+        if ($this->cannot('viewAny')) {
+            return Redirect::unauthorized();
+        }
+
         $paymentMethods = PaymentMethod::latest()->paginate(10);
         
         return Inertia::render('Admin/PaymentMethod/Index',[
@@ -25,8 +32,12 @@ class PaymentMethodController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(): Response | RedirectResponse
     {
+        if ($this->cannot('create')) {
+            return Redirect::unauthorized();
+        }
+
         return Inertia::render('Admin/PaymentMethod/Create', [
             'accountTypes' => PaymentAccountTypes::cases()
         ]);
@@ -34,6 +45,10 @@ class PaymentMethodController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($this->cannot('create')) {
+            return Redirect::unauthorized();
+        }
+
         $validated = $request->validate([
             'type' => 'required|string|max:255|unique:payment_methods,type',
             'account_number' => 'required|numeric|max_digits:50|min_digits:10',
@@ -53,7 +68,11 @@ class PaymentMethodController extends Controller
     }
 
     public function edit(PaymentMethod $paymentMethod)
-    {        
+    {
+        if ($this->cannot('update', $paymentMethod)) {
+            return Redirect::unauthorized();
+        }    
+
         return Inertia::render('Admin/PaymentMethod/Edit',[
             'accountTypes' => PaymentAccountTypes::cases(),
             'paymentMethod' => $paymentMethod,
@@ -62,6 +81,9 @@ class PaymentMethodController extends Controller
 
     public function update(Request $request, PaymentMethod $paymentMethod): RedirectResponse
     {
+        if ($this->cannot('update', $paymentMethod)) {
+            return Redirect::unauthorized();
+        }
 
         $validated = $request->validate([
             'type' => ['required', 'string', 'max:255', Rule::unique('payment_methods')->ignore($paymentMethod->id)],
@@ -88,7 +110,11 @@ class PaymentMethodController extends Controller
     }
 
     public function toggleStatus(PaymentMethod $paymentMethod): RedirectResponse
-    {        
+    {    
+        if ($this->cannot('status', $paymentMethod)) {
+            return Redirect::unauthorized();
+        }  
+
        $paymentMethod->update([
             'status' => !$paymentMethod->status,
         ]);
@@ -99,6 +125,10 @@ class PaymentMethodController extends Controller
     
     public function destroy(PaymentMethod $paymentMethod): RedirectResponse
     {
+        if ($this->cannot('delete', $paymentMethod)) {
+            return Redirect::unauthorized();
+        } 
+
         if (Storage::disk('public')->exists($paymentMethod->logo)) {
             Storage::disk('public')->delete($paymentMethod->logo);
         }
@@ -117,5 +147,14 @@ class PaymentMethodController extends Controller
         return response()->json([
             'paymentMethods' => $paymentMethods,
         ]);
+    }
+
+    private function cannot(string $operation, ?PaymentMethod $paymentMethod = null): bool
+    {
+        if (!$paymentMethod) {
+            return Gate::forUser(Auth::guard('admin')->user())->denies($operation, PaymentMethod::class);
+        }
+
+        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, $paymentMethod);
     }
 }

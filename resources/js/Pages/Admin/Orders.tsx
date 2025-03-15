@@ -41,7 +41,11 @@ interface OrderForOrderPage extends Order {
 }
 
 const Orders = () => {
-    const { orders, statuses } = usePage().props;
+    const {
+        orders,
+        statuses,
+        auth: { admin },
+    } = usePage().props;
     const [fetchedOrders, setFetchedOrders] = useState<any>(orders);
     const [show, setShowModal] = useState<boolean>(false);
     const [approvalOrder, setApprovalOrder] = useState<Order | null>(null);
@@ -169,14 +173,17 @@ const Orders = () => {
                                     <Badge
                                         className={cn({
                                             "bg-green-500 hover:bg-green-500":
-                                                order?.status === "completed",
+                                                (order.status as Status) ===
+                                                "completed",
                                             "bg-red-500 hover:bg-red-500":
-                                                order?.status === "rejected",
+                                                (order.status as Status) ===
+                                                "rejected",
                                         })}
                                     >
                                         {order.status}
                                     </Badge>
-                                ) : (
+                                ) : admin.is_super_admin ||
+                                  admin.can_only.change_order_status ? (
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="outline">
@@ -206,11 +213,27 @@ const Orders = () => {
                                                     }
                                                     className="cursor-pointer w-full text-red-500 hover:!text-red-600"
                                                 >
-                                                    Rejected
+                                                    Reject
                                                 </button>
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
+                                ) : (
+                                    <Badge
+                                        className={cn({
+                                            "bg-green-500 hover:bg-green-500":
+                                                (order.status as Status) ===
+                                                "completed",
+                                            "bg-red-500 hover:bg-red-500":
+                                                (order.status as Status) ===
+                                                "rejected",
+                                            "bg-yellow-500 hover:bg-yellow-500":
+                                                (order.status as Status) ===
+                                                "pending",
+                                        })}
+                                    >
+                                        {order.status}
+                                    </Badge>
                                 )}
                             </td>
 
@@ -218,6 +241,10 @@ const Orders = () => {
                                 item={order}
                                 routeName="admin.orders"
                                 showEdit={false}
+                                showDelete={
+                                    !!admin.can_only.delete_order ||
+                                    admin.is_super_admin
+                                }
                             />
                         </tr>
                     ))}

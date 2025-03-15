@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\Status;
 use App\Enums\SubscriptionPeriod;
+use App\Helpers\Redirect;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\PhoneNumber;
@@ -11,6 +12,8 @@ use App\Models\Subscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -21,8 +24,12 @@ use Illuminate\Validation\ValidationException;
 class OrderController extends Controller
 {
 
-    public function index(): Response
+    public function index(): Response | RedirectResponse
     {
+        if ($this->cannot('viewAny')) {
+            return Redirect::unauthorized();
+        }  
+        
         $orders = Order::query()
             ->leftJoin('payment_methods', 'payment_methods.id', '=', 'orders.payment_method_id')
             ->leftJoin('users', 'users.id', '=', 'orders.user_id')
@@ -45,6 +52,10 @@ class OrderController extends Controller
 
     public function destroy(Order $order): RedirectResponse 
     {
+        if ($this->cannot('delete', $order)) {
+            return Redirect::unauthorized();
+        }  
+
         if (Storage::disk('public')->exists($order->payment_screenshot)) {
             Storage::disk('public')->delete($order->payment_screenshot);
         }
@@ -56,6 +67,10 @@ class OrderController extends Controller
 
     public function update(Request $request, Order $order): RedirectResponse 
     {
+        if ($this->cannot('updateStatus', $order)) {
+            return Redirect::unauthorized();
+        }  
+
         $request->validate([
             'status' => ['required', new Enum(Status::class)],
         ]);
@@ -97,6 +112,10 @@ class OrderController extends Controller
 
     public function approveNewOrder(Request $request, Order $order)
     {
+        if ($this->cannot('updateStatus', $order)) {
+            return Redirect::unauthorized();
+        }
+
          $request->validate([
             'number' => ['required', 'string', 'max:255', 'phone:US', Rule::unique('phone_numbers')],
         ], [
@@ -150,5 +169,14 @@ class OrderController extends Controller
                 'payment_method_id' => $order->payment_method_id,
             ]
         );
+    }
+
+    private function cannot(string $operation, ?Order $order = null): bool
+    {
+        if (!$order) {
+            return Gate::forUser(Auth::guard('admin')->user())->denies($operation, Order::class);
+        }
+
+        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, $order);
     }
 }

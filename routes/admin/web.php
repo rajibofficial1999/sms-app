@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Admin\UserRoleController;
 use App\Http\Controllers\Admin\VerificationCodeController;
+use App\Http\Controllers\ErrorPageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -46,6 +47,8 @@ Route::middleware(['admin.auth', 'admin.verified'])->group(function () {
 Route::middleware('admin.auth')->group(function () {
     Route::post('/verify-code', VerificationCodeController::class)->name('verify.code');
 });
+
+Route::get('/unauthorized', [ErrorPageController::class, 'unauthorized'])->name('unauthorized');
 
 require base_path('routes/admin/auth.php');
 

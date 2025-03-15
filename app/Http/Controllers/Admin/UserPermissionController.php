@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Redirect;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignPermissionRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role as UserRole;
 
@@ -14,9 +17,17 @@ class UserPermissionController extends Controller
 {
      public function store(Request $request): RedirectResponse
     {
+        if ($this->cannot('create')) {
+            return Redirect::unauthorized();
+        } 
+        
         $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:permissions,name'],
-        ]);
+                'name' => ['required', 'string', 'max:255', 'unique:permissions,name', 'regex:/^\S*$/'],
+            ],
+            [
+                'name.regex' => 'The name field cannot contain spaces.',
+            ]
+        );
 
         Permission::create([
             'name' => $request->name,
@@ -28,9 +39,17 @@ class UserPermissionController extends Controller
 
     public function update(Request $request, Permission $permission): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:permissions,name'],
-        ]);
+        if ($this->cannot('update', $permission)) {
+            return Redirect::unauthorized();
+        } 
+
+         $request->validate([
+                'name' => ['required', 'string', 'max:255', 'regex:/^\S*$/', 'unique:permissions,name,' . $permission->id],
+            ],
+            [
+                'name.regex' => 'The name field cannot contain spaces.',
+            ]
+        );
 
         $permission->update([
             'name' => $request->name,
@@ -41,6 +60,10 @@ class UserPermissionController extends Controller
 
     public function destroy(Permission $permission): RedirectResponse
     {
+        if ($this->cannot('delete', $permission)) {
+            return Redirect::unauthorized();
+        } 
+
         $permission->delete();
 
         return redirect()->back();
@@ -48,6 +71,10 @@ class UserPermissionController extends Controller
 
     public function assignPermission(AssignPermissionRequest $request)
     {
+        if ($this->cannot('assignPermission')) {
+            return Redirect::unauthorized();
+        } 
+
         $role = UserRole::findOrFail($request->role_id);
 
         $role->givePermissionTo($request->permissions);
@@ -57,6 +84,10 @@ class UserPermissionController extends Controller
 
     public function removePermission(Request $request)
     {
+        if ($this->cannot('removeAssignedPermission')) {
+            return Redirect::unauthorized();
+        } 
+
         $request->validate([
             'permission' => ['required', 'integer', 'exists:permissions,id'],
             'role' => ['required', 'integer', 'exists:roles,id'],
@@ -75,7 +106,11 @@ class UserPermissionController extends Controller
         // Only get permissions that are not assigned to the role
         $permissions = Permission::whereDoesntHave('roles', function ($query) use ($role) {
             $query->where('role_id', $role->id);
-        })->get();
+        })
+        ->get()
+        ->sortBy(function ($permission) {
+            return strpos($permission, 'order') !== false ? 1 : (strpos($permission, 'user') !== false ? 2 : 3);
+        })->values();
 
         // Only get permissions that are already assigned to the role
         $hasPermissions = Permission::whereHas('roles', function ($query) use ($role) {
@@ -86,5 +121,14 @@ class UserPermissionController extends Controller
             'permissions' => $permissions,
             'hasPermissions' => $hasPermissions,
         ]);
+    }
+
+    private function cannot(string $operation, ?Permission $permission = null): bool
+    {
+        if (!$permission) {
+            return Gate::forUser(Auth::guard('admin')->user())->denies($operation, Permission::class);
+        }
+
+        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, $permission);
     }
 }

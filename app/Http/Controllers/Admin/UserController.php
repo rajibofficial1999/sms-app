@@ -3,17 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\Status;
+use App\Helpers\Redirect;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function index(): Response
+    public function index(): Response | RedirectResponse
     {
+        if ($this->cannot('viewAny')) {
+            return Redirect::unauthorized();
+        }
+
         $users = User::with('subscription', 'phoneNumber')->latest()->paginate(10);
         
         return Inertia::render('Admin/User/Index',[
@@ -23,7 +30,11 @@ class UserController extends Controller
     }
 
     public function toggleStatus(User $user): RedirectResponse
-    {        
+    {  
+        if ($this->cannot('status', $user)) {
+            return Redirect::unauthorized();
+        }
+
        $user->update([
             'status' => !$user->status,
         ]);
@@ -69,8 +80,21 @@ class UserController extends Controller
     
     public function destroy(User $user): RedirectResponse
     {
+        if ($this->cannot('delete', $user)) {
+            return Redirect::unauthorized();
+        }
+
        $user->delete();
 
        return redirect()->back();
+    }
+
+    private function cannot(string $operation, ?User $user = null): bool
+    {
+        if (!$user) {
+            return Gate::forUser(Auth::guard('admin')->user())->denies($operation, User::class);
+        }
+
+        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, $user);
     }
 }

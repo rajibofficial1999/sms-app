@@ -1,5 +1,4 @@
-import { cn } from "@/lib/utils";
-import { Link, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 
 import {
     Banknote,
@@ -10,79 +9,85 @@ import {
     UserCog,
     Users,
 } from "lucide-react";
+import SidebarLink from "./SidebarLink";
 import SidebarProfileDropdown from "./SidebarProfileDropdown";
 
-export const adminSidebarOptions: SidebarOption[] = [
-    {
-        id: 1,
-        name: "Dashboard",
-        href: route("admin.dashboard"),
-        Icon: LayoutDashboard,
-    },
-    {
-        id: 2,
-        name: "Users",
-        href: route("admin.users.index"),
-        Icon: Users,
-    },
-    {
-        id: 3,
-        name: "Orders",
-        href: route("admin.orders.index"),
-        Icon: ListOrdered,
-    },
-    {
-        id: 4,
-        name: "Payment methods",
-        href: route("admin.payment-methods.index"),
-        Icon: Banknote,
-    },
-    {
-        id: 5,
-        name: "Phone numbers",
-        href: route("admin.phone-numbers.index"),
-        Icon: NotebookTabs,
-    },
-    {
-        id: 6,
-        name: "Admin users",
-        href: route("admin.admin-users.index"),
-        Icon: UserCog,
-    },
-    {
-        id: 7,
-        name: "Roles",
-        href: route("admin.roles.index"),
-        Icon: DoorOpen,
-    },
-];
-
 const AppSidebar = () => {
-    const { url } = usePage();
+    const {
+        auth: { admin },
+    } = usePage().props;
 
     return (
         <div className="flex flex-col justify-between h-full mb-4">
             <ul>
-                {adminSidebarOptions.map((option) => {
-                    const Icon = option.Icon;
-                    return (
-                        <li key={option.id}>
-                            <Link
-                                as="button"
-                                href={option.href}
-                                className={cn(
-                                    "text-gray-700 text-nowrap w-full group flex items-center gap-x-1 rounded-md p-2 text-sm leading-6 font-semibold my-1 px-3 md:px-4 hover:bg-gray-100",
-                                    {
-                                        "bg-gray-100":
-                                            option.href.endsWith(url),
-                                    }
-                                )}
-                            >
-                                <Icon className="size-4" /> {option.name}
-                            </Link>
-                        </li>
-                    );
-                })}
+                <li className="text-nowrap">
+                    <SidebarLink
+                        name="Dashboard"
+                        href={route("admin.dashboard")}
+                        Icon={LayoutDashboard}
+                    />
+                </li>
+                {(admin.is_super_admin || admin.can_only.view_users) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Users"
+                            href={route("admin.users.index")}
+                            Icon={Users}
+                        />
+                    </li>
+                )}
+
+                {(admin.is_super_admin || admin.can_only.view_orders) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Orders"
+                            href={route("admin.orders.index")}
+                            Icon={ListOrdered}
+                        />
+                    </li>
+                )}
+
+                {(admin.is_super_admin ||
+                    admin.can_only.view_payment_methods) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Payment methods"
+                            href={route("admin.payment-methods.index")}
+                            Icon={Banknote}
+                        />
+                    </li>
+                )}
+
+                {(admin.is_super_admin ||
+                    admin.can_only.view_phone_numbers) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Phone numbers"
+                            href={route("admin.phone-numbers.index")}
+                            Icon={NotebookTabs}
+                        />
+                    </li>
+                )}
+
+                {(admin.is_super_admin || admin.can_only.admin_users) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Admin users"
+                            href={route("admin.admin-users.index")}
+                            Icon={UserCog}
+                        />
+                    </li>
+                )}
+
+                {(admin.is_super_admin || admin.can_only.view_roles) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Roles"
+                            href={route("admin.roles.index")}
+                            Icon={DoorOpen}
+                        />
+                    </li>
+                )}
             </ul>
 
             <SidebarProfileDropdown />

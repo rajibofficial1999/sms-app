@@ -1,5 +1,6 @@
 import Modal from "@/Components/Modal";
 import { Button } from "@/Components/ui/button";
+import { ScrollArea } from "@/Components/ui/scroll-area";
 import { router, useForm } from "@inertiajs/react";
 import { LoaderCircle, PenBoxIcon, Trash } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -124,40 +125,42 @@ const RolesPermissions: React.FC<RolesPermissionsProps> = ({
                     </div>
                     <div>
                         <h1 className="mb-2 font-semibold">Permissions</h1>
-                        <ul className="space-y-2">
-                            {permissions.map((permission) => (
-                                <li
-                                    key={permission.id}
-                                    className="flex items-center space-x-2"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <button
-                                            onClick={() =>
-                                                handleDelete(
-                                                    permission,
-                                                    "permission"
-                                                )
-                                            }
-                                            className="text-red-500"
-                                        >
-                                            <Trash className="size-4" />
-                                        </button>
+                        <ScrollArea className="h-72">
+                            <ul className="space-y-2">
+                                {permissions.map((permission) => (
+                                    <li
+                                        key={permission.id}
+                                        className="flex items-center space-x-2"
+                                    >
+                                        <div className="flex items-center space-x-1">
+                                            <button
+                                                onClick={() =>
+                                                    handleDelete(
+                                                        permission,
+                                                        "permission"
+                                                    )
+                                                }
+                                                className="text-red-500"
+                                            >
+                                                <Trash className="size-4" />
+                                            </button>
 
-                                        <button
-                                            onClick={() =>
-                                                setSelectedPermission(
-                                                    permission
-                                                )
-                                            }
-                                            className="text-gray-600"
-                                        >
-                                            <PenBoxIcon className="size-4" />
-                                        </button>
-                                    </div>
-                                    <span>{permission.name}</span>
-                                </li>
-                            ))}
-                        </ul>
+                                            <button
+                                                onClick={() =>
+                                                    setSelectedPermission(
+                                                        permission
+                                                    )
+                                                }
+                                                className="text-gray-600"
+                                            >
+                                                <PenBoxIcon className="size-4" />
+                                            </button>
+                                        </div>
+                                        <span>{permission.name}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </ScrollArea>
                     </div>
                 </div>
             </section>

@@ -19,7 +19,10 @@ import { toast } from "sonner";
 const headers = ["Phone number", "Area code", "User", "Status"];
 
 const PhoneNumbers = () => {
-    const { phoneNumbers } = usePage().props;
+    const {
+        phoneNumbers,
+        auth: { admin },
+    } = usePage().props;
     const [fetchedPhoneNumbers, setFetchedPhoneNumbers] =
         useState<any>(phoneNumbers);
     const [show, setShowModal] = useState<boolean>(false);
@@ -107,36 +110,48 @@ const PhoneNumbers = () => {
                                     item={phoneNumber}
                                     routeName="admin.phone-numbers"
                                     showEdit={false}
+                                    showDelete={
+                                        !!admin.can_only.delete_phone_number ||
+                                        admin.is_super_admin
+                                    }
                                 >
-                                    <DropdownMenuItem asChild>
-                                        <Link
-                                            as="button"
-                                            method="put"
-                                            href={route(
-                                                "admin.phone-numbers.status",
-                                                phoneNumber.id
-                                            )}
-                                            className="w-full cursor-pointer"
-                                        >
-                                            <ToggleRight className="size-4" />{" "}
-                                            {phoneNumber.status
-                                                ? "Deactivate"
-                                                : "Activate"}
-                                        </Link>
-                                    </DropdownMenuItem>
+                                    {(admin.is_super_admin ||
+                                        admin.can_only
+                                            .change_phone_number_status) && (
+                                        <DropdownMenuItem asChild>
+                                            <Link
+                                                as="button"
+                                                method="put"
+                                                href={route(
+                                                    "admin.phone-numbers.status",
+                                                    phoneNumber.id
+                                                )}
+                                                className="w-full cursor-pointer"
+                                            >
+                                                <ToggleRight className="size-4" />{" "}
+                                                {phoneNumber.status
+                                                    ? "Deactivate"
+                                                    : "Activate"}
+                                            </Link>
+                                        </DropdownMenuItem>
+                                    )}
 
-                                    <DropdownMenuItem asChild>
-                                        <button
-                                            type="button"
-                                            className="w-full cursor-pointer"
-                                            onClick={() => {
-                                                setEditNumber(phoneNumber);
-                                                setShowModal(true);
-                                            }}
-                                        >
-                                            <PenBox className="size-4" /> Edit
-                                        </button>
-                                    </DropdownMenuItem>
+                                    {(admin.is_super_admin ||
+                                        admin.can_only.update_phone_number) && (
+                                        <DropdownMenuItem asChild>
+                                            <button
+                                                type="button"
+                                                className="w-full cursor-pointer"
+                                                onClick={() => {
+                                                    setEditNumber(phoneNumber);
+                                                    setShowModal(true);
+                                                }}
+                                            >
+                                                <PenBox className="size-4" />{" "}
+                                                Edit
+                                            </button>
+                                        </DropdownMenuItem>
+                                    )}
                                 </TableAction>
                             </tr>
                         )

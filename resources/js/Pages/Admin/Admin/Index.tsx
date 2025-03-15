@@ -20,7 +20,11 @@ const headers = [
 ];
 
 const PhoneNumbers = () => {
-    const { admins, role_names } = usePage().props;
+    const {
+        admins,
+        role_names,
+        auth: { admin },
+    } = usePage().props;
 
     const [fetchedAdminUsers, setFetchedAdminUsers] = useState<any>(admins);
 
@@ -77,6 +81,9 @@ const PhoneNumbers = () => {
                     addButton={{
                         url: route("admin.admin-users.create"),
                         text: "Add new",
+                        show:
+                            admin.is_super_admin ||
+                            admin.can_only.create_admin_user,
                     }}
                 >
                     {fetchedAdminUsers.data.map((admin: Admin) => (
@@ -142,23 +149,35 @@ const PhoneNumbers = () => {
                             <TableAction
                                 item={admin}
                                 routeName="admin.admin-users"
+                                showDelete={
+                                    !!admin.can_only.delete_admin_user ||
+                                    admin.is_super_admin
+                                }
+                                showEdit={
+                                    !!admin.can_only.update_admin_user ||
+                                    admin.is_super_admin
+                                }
                             >
-                                <DropdownMenuItem asChild>
-                                    <Link
-                                        as="button"
-                                        method="put"
-                                        href={route(
-                                            "admin.admin-users.status",
-                                            admin.id
-                                        )}
-                                        className="w-full cursor-pointer"
-                                    >
-                                        <ToggleRight className="size-4" />{" "}
-                                        {admin.status
-                                            ? "Deactivate"
-                                            : "Activate"}
-                                    </Link>
-                                </DropdownMenuItem>
+                                {(admin.is_super_admin ||
+                                    admin.can_only
+                                        .change_admin_user_status) && (
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            as="button"
+                                            method="put"
+                                            href={route(
+                                                "admin.admin-users.status",
+                                                admin.id
+                                            )}
+                                            className="w-full cursor-pointer"
+                                        >
+                                            <ToggleRight className="size-4" />{" "}
+                                            {admin.status
+                                                ? "Deactivate"
+                                                : "Activate"}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
                             </TableAction>
                         </tr>
                     ))}
