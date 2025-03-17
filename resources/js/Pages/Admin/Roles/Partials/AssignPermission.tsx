@@ -2,7 +2,7 @@ import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group";
 import { ScrollArea } from "@/Components/ui/scroll-area";
-import { router, useForm } from "@inertiajs/react";
+import { router, useForm, usePage } from "@inertiajs/react";
 import axios from "axios";
 import { LoaderCircle, Trash } from "lucide-react";
 import { useState } from "react";
@@ -19,6 +19,10 @@ interface AssignPermissionProps {
 }
 
 const AssignPermission: React.FC<AssignPermissionProps> = ({ roles }) => {
+    const {
+        auth: { admin },
+    } = usePage().props;
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [fetchedPermissions, setFetchedPermissions] = useState<Permission[]>(
         []
@@ -155,75 +159,89 @@ const AssignPermission: React.FC<AssignPermissionProps> = ({ roles }) => {
                             ))}
                         </RadioGroup>
                     </div>
-                    <div className="my-5">
-                        <h1 className="mb-2 font-semibold">Permissions</h1>
+                    {(admin.is_super_admin ||
+                        admin.can_only.assign_permission) && (
+                        <div className="my-5">
+                            <h1 className="mb-2 font-semibold">Permissions</h1>
 
-                        <ScrollArea className="h-72">
-                            {isLoading ? (
-                                <LoaderCircle className="size-5 animate-spin" />
-                            ) : fetchedPermissions.length > 0 ? (
-                                <div className="mt-4 space-y-3">
-                                    {fetchedPermissions.map((permission) => (
-                                        <div
-                                            key={permission.id}
-                                            className="flex items-center space-x-2"
-                                        >
-                                            <input
-                                                id={`permission-${permission.id}`}
-                                                type="checkbox"
-                                                className="checkbox checkbox-primary"
-                                                value={permission.id}
-                                                onChange={(event) =>
-                                                    handleChecked(event)
-                                                }
-                                            />
-                                            <Label
-                                                className="cursor-pointer"
-                                                htmlFor={`permission-${permission.id}`}
-                                            >
-                                                {permission.name}
-                                            </Label>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-xs">No permissions found</p>
-                            )}
-                        </ScrollArea>
-                    </div>
-                    <div className="my-5">
-                        <h1 className="mb-2 font-semibold">Has permissions</h1>
+                            <ScrollArea className="h-72">
+                                {isLoading ? (
+                                    <LoaderCircle className="size-5 animate-spin" />
+                                ) : fetchedPermissions.length > 0 ? (
+                                    <div className="mt-4 space-y-3 px-5">
+                                        {fetchedPermissions.map(
+                                            (permission) => (
+                                                <div
+                                                    key={permission.id}
+                                                    className="flex items-center space-x-2"
+                                                >
+                                                    <input
+                                                        id={`permission-${permission.id}`}
+                                                        type="checkbox"
+                                                        className="checkbox checkbox-primary"
+                                                        value={permission.id}
+                                                        onChange={(event) =>
+                                                            handleChecked(event)
+                                                        }
+                                                    />
+                                                    <Label
+                                                        className="cursor-pointer"
+                                                        htmlFor={`permission-${permission.id}`}
+                                                    >
+                                                        {permission.name}
+                                                    </Label>
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-xs">
+                                        No permissions found
+                                    </p>
+                                )}
+                            </ScrollArea>
+                        </div>
+                    )}
+                    {(admin.is_super_admin ||
+                        admin.can_only.removed_assigned_permission) && (
+                        <div className="my-5">
+                            <h1 className="mb-2 font-semibold">
+                                Has permissions
+                            </h1>
 
-                        <ScrollArea className="h-72">
-                            {isLoading ? (
-                                <LoaderCircle className="size-5 animate-spin" />
-                            ) : hasPermissions.length > 0 ? (
-                                <div className="mt-4 space-y-3">
-                                    {hasPermissions.map((permission) => (
-                                        <div
-                                            key={permission.id}
-                                            className="flex items-center space-x-2"
-                                        >
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handlePermissionDelete(
-                                                        permission
-                                                    )
-                                                }
-                                                className="text-red-500 hover:text-red-600"
+                            <ScrollArea className="h-72">
+                                {isLoading ? (
+                                    <LoaderCircle className="size-5 animate-spin" />
+                                ) : hasPermissions.length > 0 ? (
+                                    <div className="mt-4 space-y-3">
+                                        {hasPermissions.map((permission) => (
+                                            <div
+                                                key={permission.id}
+                                                className="flex items-center space-x-2"
                                             >
-                                                <Trash className="size-4" />
-                                            </button>
-                                            <p>{permission.name}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-xs">No permissions found</p>
-                            )}
-                        </ScrollArea>
-                    </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handlePermissionDelete(
+                                                            permission
+                                                        )
+                                                    }
+                                                    className="text-red-500 hover:text-red-600"
+                                                >
+                                                    <Trash className="size-4" />
+                                                </button>
+                                                <p>{permission.name}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-xs">
+                                        No permissions found
+                                    </p>
+                                )}
+                            </ScrollArea>
+                        </div>
+                    )}
                 </div>
                 <Button
                     disabled={

@@ -197,6 +197,23 @@ declare global {
         fill?: string;
     }
 
+    interface AppSetting {
+        id: number;
+        app_name: string;
+        app_logo: string;
+        app_description: string;
+    }
+
+    interface ServicePrice {
+        id: number;
+        incoming_sms_price: string;
+        outgoing_sms_price: string;
+        incoming_mms_price: string;
+        outgoing_mms_price: string;
+        incoming_call_price: string;
+        outgoing_call_price: string;
+    }
+
     /* eslint-disable no-var */
     var route: typeof ziggyRoute;
 }

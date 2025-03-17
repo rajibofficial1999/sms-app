@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { FC, useRef } from "react";
+import PreviewImage from "./PreviewImage";
 
 interface MessagesProps {
     messages: Message[];
@@ -70,16 +71,17 @@ const Messages: FC<MessagesProps> = ({ messages, conversation }) => {
                                         </span>
                                     ) : (
                                         <div>
-                                            <img
-                                                src={
+                                            <PreviewImage
+                                                imageUrl={
                                                     isLocalNumber
                                                         ? `/storage/${message.image.image_url}`
                                                         : message.image
                                                               .image_url
                                                 }
-                                                alt="image"
+                                                imageAlt="image"
                                                 className="rounded-md cursor-pointer"
                                             />
+
                                             <span className="ml-2 text-xs text-gray-400">
                                                 {formatTimestamp(
                                                     message.created_at

@@ -7,6 +7,7 @@ import {
     ChartTooltipContent,
 } from "@/Components/ui/chart";
 import { usePage } from "@inertiajs/react";
+import { PageProps } from "@/types";
 
 const chartConfig = {
     trafic: {
@@ -16,7 +17,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const DailyTrafficsChart = () => {
-    const { trafficCharts: chartData } = usePage().props;
+    const { trafficCharts: chartData } = usePage<PageProps<any>>().props;
     return (
         <>
             <Card>

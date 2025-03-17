@@ -96,7 +96,7 @@ const PhoneNumbers = () => {
                                 {user.email}
                             </td>
 
-                            <td className="px-4 py-3 capitalize">
+                            <td className="px-4 py-3 capitalize text-nowrap">
                                 {user.phone_number
                                     ? user.phone_number.number
                                     : "..."}
@@ -158,25 +158,25 @@ const PhoneNumbers = () => {
                                     admin.is_super_admin
                                 }
                             >
-                                {admin.is_super_admin ||
-                                    (admin.can_only.change_user_status && (
-                                        <DropdownMenuItem asChild>
-                                            <Link
-                                                as="button"
-                                                method="put"
-                                                href={route(
-                                                    "admin.users.status",
-                                                    user.id
-                                                )}
-                                                className="w-full cursor-pointer"
-                                            >
-                                                <ToggleRight className="size-4" />{" "}
-                                                {user.status
-                                                    ? "Deactivate"
-                                                    : "Activate"}
-                                            </Link>
-                                        </DropdownMenuItem>
-                                    ))}
+                                {(admin.is_super_admin ||
+                                    admin.can_only.change_user_status) && (
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            as="button"
+                                            method="put"
+                                            href={route(
+                                                "admin.users.status",
+                                                user.id
+                                            )}
+                                            className="w-full cursor-pointer"
+                                        >
+                                            <ToggleRight className="size-4" />{" "}
+                                            {user.status
+                                                ? "Deactivate"
+                                                : "Activate"}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
                             </TableAction>
                         </tr>
                     ))}

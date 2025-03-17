@@ -23,7 +23,7 @@ const PhoneNumbers = () => {
     const {
         admins,
         role_names,
-        auth: { admin },
+        auth: { admin: adminUser },
     } = usePage().props;
 
     const [fetchedAdminUsers, setFetchedAdminUsers] = useState<any>(admins);
@@ -82,8 +82,8 @@ const PhoneNumbers = () => {
                         url: route("admin.admin-users.create"),
                         text: "Add new",
                         show:
-                            admin.is_super_admin ||
-                            admin.can_only.create_admin_user,
+                            adminUser.is_super_admin ||
+                            adminUser.can_only.create_admin_user,
                     }}
                 >
                     {fetchedAdminUsers.data.map((admin: Admin) => (
@@ -150,16 +150,16 @@ const PhoneNumbers = () => {
                                 item={admin}
                                 routeName="admin.admin-users"
                                 showDelete={
-                                    !!admin.can_only.delete_admin_user ||
-                                    admin.is_super_admin
+                                    !!adminUser.can_only.delete_admin_user ||
+                                    adminUser.is_super_admin
                                 }
                                 showEdit={
-                                    !!admin.can_only.update_admin_user ||
-                                    admin.is_super_admin
+                                    !!adminUser.can_only.update_admin_user ||
+                                    adminUser.is_super_admin
                                 }
                             >
-                                {(admin.is_super_admin ||
-                                    admin.can_only
+                                {(adminUser.is_super_admin ||
+                                    adminUser.can_only
                                         .change_admin_user_status) && (
                                     <DropdownMenuItem asChild>
                                         <Link

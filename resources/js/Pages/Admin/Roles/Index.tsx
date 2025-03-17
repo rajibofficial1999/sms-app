@@ -7,7 +7,11 @@ import RolePermissionForm from "./Partials/RolePermissionForm";
 import RolesPermissions from "./Partials/RolesPermissions";
 
 const Roles = () => {
-    const { roles, permissions } = usePage().props;
+    const {
+        roles,
+        permissions,
+        auth: { admin },
+    } = usePage().props;
 
     const [fetchedPermissions, setFetchedPermissions] = useState<Permission[]>(
         []
@@ -31,14 +35,19 @@ const Roles = () => {
 
                 <div className="pb-12">
                     <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                        <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                            <RolePermissionForm
-                                selectedRole={selectedRole}
-                                selectedPermission={selectedPermission}
-                                setSelectedRole={setSelectedRole}
-                                setSelectedPermission={setSelectedPermission}
-                            />
-                        </div>
+                        {admin.is_super_admin ||
+                            (admin.can_only.create_role && (
+                                <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                                    <RolePermissionForm
+                                        selectedRole={selectedRole}
+                                        selectedPermission={selectedPermission}
+                                        setSelectedRole={setSelectedRole}
+                                        setSelectedPermission={
+                                            setSelectedPermission
+                                        }
+                                    />
+                                </div>
+                            ))}
                         <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
                             <RolesPermissions
                                 roles={fetchedRoles}

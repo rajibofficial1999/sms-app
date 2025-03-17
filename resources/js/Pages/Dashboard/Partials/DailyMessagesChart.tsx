@@ -15,6 +15,7 @@ import {
     ChartTooltipContent,
 } from "@/Components/ui/chart";
 import { usePage } from "@inertiajs/react";
+import { PageProps } from "@/types";
 
 const chartConfig = {
     sent: {
@@ -28,7 +29,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const DailyMessagesChart = () => {
-    const { messageCharts: chartData } = usePage().props;
+    const { messageCharts: chartData } = usePage<PageProps<any>>().props;
 
     return (
         <>

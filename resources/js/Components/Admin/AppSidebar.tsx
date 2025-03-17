@@ -6,6 +6,7 @@ import {
     LayoutDashboard,
     ListOrdered,
     NotebookTabs,
+    Settings,
     UserCog,
     Users,
 } from "lucide-react";
@@ -85,6 +86,18 @@ const AppSidebar = () => {
                             name="Roles"
                             href={route("admin.roles.index")}
                             Icon={DoorOpen}
+                        />
+                    </li>
+                )}
+
+                {(admin.is_super_admin ||
+                    admin.can_only.create_app_setting ||
+                    admin.can_only.create_service_price) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Settings"
+                            href={route("admin.settings.edit")}
+                            Icon={Settings}
                         />
                     </li>
                 )}

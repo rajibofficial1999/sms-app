@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\Order;
 use App\Models\PhoneNumber;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -21,41 +22,114 @@ class DashboardController extends Controller
 
         $userConversationIds = Conversation::where('local_number_id', $userPhoneNumber?->id)->pluck('id');
 
-        // Messages per hour
         $messagesPerHour = $this->getMessagesPerHour($userPhoneNumber, $userConversationIds);
 
-        // Generate charts for messages sent and received per hour
         $messageCharts = $this->generateMessageChartData($messagesPerHour);
 
-        // Calculate total sent and received messages
+        $trafficCharts = $this->generateTrafficChartData($userConversationIds);
+
+        $totalMessagesChart = $this->totalMessagesChart($messagesPerHour);
+
+        $totalTrafficsChart = $this->totalTrafficsChart($userConversationIds);
+
+        $orders = $this->getOrders();   
+
+        return Inertia::render('Dashboard/Index', [
+            'orders' => $orders,
+            'messageCharts' => $messageCharts,
+            'totalMessagesChart' => $totalMessagesChart,
+            'trafficCharts' => $trafficCharts,
+            'totalTrafficsChart' => $totalTrafficsChart,
+        ]);
+    }
+
+    private function generateMessageChartData(Collection $data): Collection
+    {
+        return collect(range(0, 23))->map(function ($hour) use ($data) {
+            $formattedTime = Carbon::now()->subHours(23 - $hour)->format('Y-m-d H:00:00');
+
+            $found = $data->firstWhere('time', $formattedTime);
+
+            return [
+                'time' => Carbon::parse($formattedTime)->format('h:i A'),
+                'sent' => $found ? (int) $found->sent : 0,
+                'received' => $found ? (int) $found->received : 0,
+            ];
+        });
+    }
+
+    private function generateTrafficChartData(mixed $userConversationIds): Collection
+    {
+        $data = Conversation::selectRaw("
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as time, 
+                count(*) as traffics"
+            )
+            ->where('created_at', '>=', Carbon::now()->subHours(24)) 
+            ->whereIn('id', $userConversationIds)
+            ->groupBy('time')
+            ->orderBy('time', 'ASC')
+            ->get();
+
+        return collect(range(0, 23))->map(function ($hour) use ($data) {
+            $formattedTime = Carbon::now()->subHours(23 - $hour)->format('Y-m-d H:00:00'); 
+
+            $found = $data->firstWhere('time', $formattedTime);
+
+            return [
+                'time' => Carbon::parse($formattedTime)->format('h:i A'),
+                'traffics' => $found ? (int) $found->traffics : 0,
+            ];
+        });
+    }
+
+    private function totalMessagesChart(Collection $messagesPerHour): Collection
+    {
         $totalMessages = $messagesPerHour->reduce(function ($carry, $item) {
             $carry['sent'] += $item->sent;
             $carry['received'] += $item->received;
             return $carry;
         }, ['sent' => 0, 'received' => 0]);
 
-        $totalMessagesChart = [
+        return collect([
             ['name' => 'sent', 'messages' => (int) $totalMessages['sent']],
             ['name' => 'received', 'messages' => (int) $totalMessages['received']],
-        ];
+        ]); 
 
-        // Traffic per hour
-        $trafficsPerHour = $this->getTrafficsPerHour($userConversationIds);
+    }
 
-        // Generate charts for traffic per hour
-        $trafficCharts = $this->generateTrafficChartData($trafficsPerHour);
-
-        // Calculate total traffic
+    private function totalTrafficsChart(mixed $userConversationIds): Collection
+    {
         $totalTraffics = Conversation::whereIn('id', $userConversationIds)
             ->whereDate('created_at', Carbon::today())
             ->count();
 
-        $totalTrafficsChart = [
+        return collect([
             ['name' => 'traffic', 'traffics' => (int) $totalTraffics]
-        ];
+        ]); 
+    }
 
-        // Latest 5 orders
-        $orders = Order::query()
+    private function getMessagesPerHour(?PhoneNumber $userPhoneNumber, mixed $userConversationIds): Collection
+    {
+        if (!$userPhoneNumber) {
+            return collect([]);    
+        } 
+
+        return Message::selectRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as time, 
+                    SUM(CASE WHEN sender_number = ? THEN 1 ELSE 0 END) as sent,
+                    SUM(CASE WHEN sender_number != ? THEN 1 ELSE 0 END) as received"
+                )
+                ->addBinding([$userPhoneNumber->number, $userPhoneNumber->number], 'select')
+                ->where('created_at', '>=', Carbon::now()->subHours(24))
+                ->whereIn('conversation_id', $userConversationIds)
+                ->groupBy('time')
+                ->orderBy('time', 'ASC')
+                ->get();
+        
+    }
+
+    private function getOrders(): LengthAwarePaginator
+    {
+        return Order::query()
                     ->leftJoin('payment_methods', 'payment_methods.id', '=', 'orders.payment_method_id')
                     ->leftJoin('users', 'users.id', '=', 'orders.user_id')
                     ->leftJoin('phone_numbers', 'phone_numbers.user_id', '=', 'users.id') 
@@ -67,69 +141,5 @@ class DashboardController extends Controller
                     ) 
                     ->latest('orders.created_at') 
                     ->paginate(5);
-
-        return Inertia::render('Dashboard/Index', [
-            'orders' => $orders,
-            'messageCharts' => $messageCharts,
-            'totalMessagesChart' => $totalMessagesChart,
-            'trafficCharts' => $trafficCharts,
-            'totalTrafficsChart' => $totalTrafficsChart,
-        ]);
-    }
-
-    private function generateMessageChartData($data): Collection
-    {
-        return collect(range(0, 23))->map(function ($time) use ($data) {
-            $formattedTime = Carbon::today()->addHours($time)->format('Y-m-d H:00:00');
-            $found = $data->firstWhere('time', $formattedTime);
-
-            return [
-                'time' => $found ? Carbon::parse($found->time)->format('h:i A') : Carbon::parse($formattedTime)->format('h:i A'),
-                'sent' => $found ? (int) $found->sent : 0,
-                'received' => $found ? (int) $found->received : 0,
-            ];
-        });
-    }
-
-    private function generateTrafficChartData($data): Collection
-    {
-        return collect(range(0, 23))->map(function ($time) use ($data) {
-            $formattedTime = Carbon::today()->addHours($time)->format('Y-m-d H:00:00');
-            $found = $data->firstWhere('time', $formattedTime);
-
-            return [
-                'time' => $found ? Carbon::parse($found->time)->format('h:i A') : Carbon::parse($formattedTime)->format('h:i A'),
-                'traffics' => $found ? (int) $found->traffics : 0,
-            ];
-        });
-    }
-
-    private function getMessagesPerHour(?PhoneNumber $userPhoneNumber, mixed $userConversationIds): Collection
-    {
-
-         if (!$userPhoneNumber) {
-            return collect([]);
-        }
-
-        return Message::selectRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as time, 
-                                SUM(CASE WHEN sender_number = ? THEN 1 ELSE 0 END) as sent,
-                                SUM(CASE WHEN sender_number != ? THEN 1 ELSE 0 END) as received", 
-                                [$userPhoneNumber->number, $userPhoneNumber->number])
-                            ->whereDate('created_at', Carbon::today())
-                            ->whereIn('conversation_id', $userConversationIds)
-                            ->groupBy('time')
-                            ->orderBy('time', 'ASC')
-                            ->get();
-    }
-
-    private function getTrafficsPerHour(mixed $userConversationIds): Collection
-    {
-        return Conversation::selectRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as time, 
-                                                      count(*) as traffics")
-            ->whereDate('created_at', Carbon::today())
-            ->whereIn('id', $userConversationIds)
-            ->groupBy('time')
-            ->orderBy('time', 'ASC')
-            ->get();
     }
 }

@@ -29,7 +29,7 @@ class AdminUserController extends Controller
                     ->whereNot('id', Auth::guard('admin')->user()->id)
                     ->paginate(10);
 
-        return Inertia::render('Admin/Admin/Index', [
+        return Inertia::render('Admin/AdminUser/Index', [
             'admins' => $admins,
             'role_names' => Role::pluck('name')
         ]);
@@ -41,7 +41,7 @@ class AdminUserController extends Controller
             return Redirect::unauthorized();
         }
 
-        return Inertia::render('Admin/Admin/Create', [
+        return Inertia::render('Admin/AdminUser/Create', [
             'roles' => Role::all(),
             'email' => request()->get('email'),
         ]);
@@ -80,7 +80,7 @@ class AdminUserController extends Controller
             return Redirect::unauthorized();
         }
 
-        return Inertia::render('Admin/Admin/Edit', [
+        return Inertia::render('Admin/AdminUser/Edit', [
             'roles' => Role::all(),
             'admin' => $admin_user->load('roles'),
             'email' => request()->get('email'),

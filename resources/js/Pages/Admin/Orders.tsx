@@ -20,6 +20,7 @@ import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import InputError from "@/Components/InputError";
 import { LoaderCircle } from "lucide-react";
+import PreviewImage from "@/Components/PreviewImage";
 
 const headers = [
     "Holder Name",
@@ -162,10 +163,10 @@ const Orders = () => {
                             </td>
                             <td className="px-4 py-3">{order.user_name}</td>
                             <td className="px-4 py-3 size-10">
-                                <img
-                                    className=" object-contain rounded-md cursor-pointer border"
-                                    src={`/storage/${order.payment_screenshot}`}
-                                    alt="Payment Screenshot"
+                                <PreviewImage
+                                    imageUrl={`/storage/${order.payment_screenshot}`}
+                                    imageAlt="Payment Screenshot"
+                                    className="rounded-md border"
                                 />
                             </td>
                             <td className="px-4 py-3 capitalize">

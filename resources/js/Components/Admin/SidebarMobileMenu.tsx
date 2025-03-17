@@ -5,6 +5,7 @@ import {
     LayoutDashboard,
     ListOrdered,
     NotebookTabs,
+    Settings,
     UserCog,
     Users,
 } from "lucide-react";
@@ -93,6 +94,19 @@ const SidebarMobileMenu = () => {
                             name="Roles"
                             href={route("admin.roles.index")}
                             Icon={DoorOpen}
+                            isMobileLink={true}
+                        />
+                    </li>
+                )}
+
+                {(admin.is_super_admin ||
+                    admin.can_only.create_app_setting ||
+                    admin.can_only.create_service_price) && (
+                    <li className="text-nowrap">
+                        <SidebarLink
+                            name="Settings"
+                            href={route("admin.settings.edit")}
+                            Icon={Settings}
                             isMobileLink={true}
                         />
                     </li>

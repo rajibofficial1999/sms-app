@@ -35,7 +35,7 @@ const Home = () => {
                         className:
                             "mt-5 bg-gradient-to-r from-blue-600 to-cyan-600",
                     })}
-                    href="/dashboard"
+                    href={route("dashboard")}
                 >
                     {user ? "Dashboard" : "Get started"}{" "}
                     <MoveRight className="ml-2 h-5 w-5" />
@@ -61,11 +61,19 @@ const Home = () => {
                                 <div className="mt-16 flow-root sm:mt-24">
                                     <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                                         <img
-                                            src="/images/dashboard-preview.jpg"
-                                            alt="product preview"
+                                            src="/images/messages-preview-desktop.png"
+                                            alt="preview inbox"
                                             width={1364}
                                             height={866}
-                                            className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
+                                            className="rounded-md hidden md:block bg-white p-6 shadow-2xl ring-1 ring-gray-900/10"
+                                        />
+
+                                        <img
+                                            src="/images/messages-preview-mobile.png"
+                                            alt="preview inbox"
+                                            width={1364}
+                                            height={866}
+                                            className="rounded-md md:hidden bg-white p-6 shadow-2xl ring-1 ring-gray-900/10"
                                         />
                                     </div>
                                 </div>

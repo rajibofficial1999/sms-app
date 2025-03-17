@@ -1,4 +1,5 @@
 import Modal from "@/Components/Modal";
+import PreviewImage from "@/Components/PreviewImage";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import {
@@ -51,7 +52,7 @@ const OrderTable = () => {
     };
     return (
         <>
-            <Table>
+            <Table className="bg-white rounded-md">
                 <TableHeader>
                     <TableRow>
                         <TableHead className="text-nowrap">Period</TableHead>
@@ -92,10 +93,10 @@ const OrderTable = () => {
                             </TableCell>
                             <TableCell>
                                 <div className="size-10 flex items-center">
-                                    <img
-                                        className=" object-contain rounded-md cursor-pointer border"
-                                        src={`/storage/${order?.payment_screenshot}`}
-                                        alt="Payment Screenshot"
+                                    <PreviewImage
+                                        imageUrl={`/storage/${order.payment_screenshot}`}
+                                        imageAlt="Payment Screenshot"
+                                        className="rounded-md border"
                                     />
                                 </div>
                             </TableCell>

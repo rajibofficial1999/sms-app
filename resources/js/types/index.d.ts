@@ -27,12 +27,10 @@ export type PageProps<
     userPhoneNumber: PhoneNumber | null;
     phoneNumbers: PhoneNumber[];
     users: User[];
-    messageCharts: MessageChart[];
-    totalMessagesChart: TotalMessagesChart[];
-    trafficCharts: TrafficChart[];
-    totalTrafficsChart: TotalTrafficsChart[];
     blockLists: BlockList[];
     admins: any;
     role_names: string[];
     admin: Admin;
+    app_settings?: AppSetting;
+    service_prices?: ServicePrice;
 };

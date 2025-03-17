@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\PhoneNumberController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Admin\UserRoleController;
@@ -14,9 +16,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::middleware(['admin.auth', 'admin.verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('dashboard');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('/admin-users', AdminUserController::class);
     Route::put('/admin-users/status/{admin}', [AdminUserController::class, 'toggleStatus'])->name('admin-users.status');
@@ -40,7 +41,11 @@ Route::middleware(['admin.auth', 'admin.verified'])->group(function () {
 
     Route::resource('/permissions', UserPermissionController::class)->only(['store', 'update', 'destroy']);
     Route::post('/permissions/remove', [UserPermissionController::class, 'removePermission'])->name('permissions.remove');
-    Route::post('/manage-roles/assign-permission', [UserPermissionController::class, 'assignPermission'])->name('roles.assign_permission');       
+    Route::post('/manage-roles/assign-permission', [UserPermissionController::class, 'assignPermission'])->name('roles.assign_permission');  
+    
+    Route::get('/app-settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('/app-settings/update', [SettingsController::class, 'updateAppSettings'])->name('settings.update_app_settings');
+    Route::patch('/app-settings/update-service-prices', [SettingsController::class, 'updateServicePrices'])->name('settings.update_service_prices');
 });
 
 

@@ -29,7 +29,7 @@ const ChatLayout = ({ children }: PropsWithChildren) => {
                     </nav>
                 </div>
 
-                <aside className="max-h-screen w-full mt-14 lg:mt-0 p-4">
+                <aside className="max-h-screen w-full mt-14 lg:mt-0 p-4 bg-gray-100">
                     {children}
                 </aside>
             </div>
