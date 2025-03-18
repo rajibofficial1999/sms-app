@@ -2,6 +2,7 @@ import ChatListHeader from "@/Components/ChatListHeader";
 import MobileSidebar from "@/Components/MobileSidebar";
 import SidebarChatList from "@/Components/SidebarChatList";
 import SubSidebar from "@/Components/SubSidebar";
+import { Toaster } from "@/Components/ui/sonner";
 import { store } from "@/lib/store";
 import { PropsWithChildren } from "react";
 import { Provider } from "react-redux";
@@ -14,6 +15,7 @@ export const metadata = {
 const ChatLayout = ({ children }: PropsWithChildren) => {
     return (
         <Provider store={store}>
+            <Toaster />
             <div className="w-full flex h-screen">
                 <div className="md:hidden">
                     <MobileSidebar />

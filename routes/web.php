@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::prefix('messaging')->group(function () {
         Route::get('/', [MessageController::class, 'index'])->name('messages.index');
         Route::get('/{conversation}', [MessageController::class, 'getMessages'])->name('messages.show');
+        Route::delete('/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
     });
 });
 

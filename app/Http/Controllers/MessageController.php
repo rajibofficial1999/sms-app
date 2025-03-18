@@ -11,9 +11,11 @@ use App\Models\PhoneNumber;
 use App\Models\User;
 use App\Services\MessageService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -142,6 +144,21 @@ class MessageController extends Controller
         ]);
     }
 
+    public function destroy(Message $message): RedirectResponse
+    {
+        $image = $message->image;
+
+        if($image) {
+            if (Storage::disk('public')->exists($image->image_url)) {
+                Storage::disk('public')->delete($image->image_url);
+            }
+        }
+            
+        $message->delete();
+
+        return redirect()->back();
+    }
+
     public function loadMoreMessages(Request $request)
     {
         $request->validate([
@@ -224,7 +241,8 @@ class MessageController extends Controller
                         })
                         ->leftJoin('messages as last_messages', function ($join) {
                             $join->on('last_messages.id', '=', 'conversations.last_message_id');
-                        })   
+                        })
+                        ->leftJoin('images', 'images.message_id', '=', 'last_messages.id')
                         ->groupBy(
                             'conversations.id',
                             'conversations.local_number_id',
@@ -235,15 +253,17 @@ class MessageController extends Controller
                             'conversations.updated_at',
                             'last_messages.id',
                             'last_messages.body',
-                            'last_messages.created_at'
+                            'last_messages.created_at',
+                            'images.image_url'
                         )
                         ->selectRaw('
                             conversations.*, 
                             COUNT(messages.id) AS unread_messages_count,
                             last_messages.body AS last_message_body,
-                            last_messages.created_at AS last_message_time
+                            last_messages.created_at AS last_message_time,
+                            images.image_url AS last_message_image
                         ')
-                        ->latest()
+                        ->orderByDesc('last_messages.created_at')
                         ->get();
                         
     }

@@ -1,22 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-export interface conversationFormState {
+export interface addConversationState {
     showForm: boolean;
     trafficNumber: string | null;
     messages: Message[];
     conversation: Conversation | null;
 }
 
-const initialState: conversationFormState = {
+const initialState: addConversationState = {
     showForm: false,
     messages: [],
     conversation: null,
     trafficNumber: null,
 };
 
-export const conversationFormSlice = createSlice({
-    name: "conversationForm",
+export const addConversationSlice = createSlice({
+    name: "addConversation",
     initialState,
     reducers: {
         setShowForm: (state, action: PayloadAction<boolean>) => {
@@ -41,6 +41,6 @@ export const conversationFormSlice = createSlice({
 });
 
 export const { setShowForm, setConversation, setMessages, setTrafficNumber } =
-    conversationFormSlice.actions;
+    addConversationSlice.actions;
 
-export default conversationFormSlice.reducer;
+export default addConversationSlice.reducer;

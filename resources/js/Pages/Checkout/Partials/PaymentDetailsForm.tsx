@@ -5,11 +5,11 @@ import { ScanLine } from "lucide-react";
 import { FC, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { toast } from "sonner";
-import FileInput from "../../../Components/FileInput";
-import QRCodeGenerator from "../../../Components/QRCodeGenerator";
-import { Button } from "../../../Components/ui/button";
-import { Input } from "../../../Components/ui/input";
-import { Label } from "../../../Components/ui/label";
+import FileInput from "@/Components/FileInput";
+import QRCodeGenerator from "@/Components/QRCodeGenerator";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
 
 interface PaymentDetailsFormProps {
     selectedMethod: PaymentMethod | null;

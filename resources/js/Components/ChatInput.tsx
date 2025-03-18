@@ -1,15 +1,16 @@
 import { RootState } from "@/lib/store";
-import { setMessages } from "@/lib/store/conversationFormSlice";
+import { setMessages } from "@/lib/store/addConversationSlice";
 import { router, usePage } from "@inertiajs/react";
 import axios from "axios";
 import { Image, LoaderCircle, SendHorizonal, Smile } from "lucide-react";
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TextareaAutosize from "react-textarea-autosize";
 import Modal from "./Modal";
 import { Button, buttonVariants } from "./ui/button";
 import { Label } from "./ui/label";
+import { setMessage } from "@/lib/store/messageSlice";
 
 interface ChatInputProps {
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -25,8 +26,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const imageInputRef = useRef<HTMLInputElement>(null);
 
     const { trafficNumber, conversation: stateConversation } = useSelector(
-        (state: RootState) => state.conversationForm
+        (state: RootState) => state.addConversation
     );
+
+    const dispatch = useDispatch();
 
     const [input, setInput] = useState<string>("");
     const [image, setImage] = useState<File | null>(null);
@@ -83,6 +86,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         route("messages.show", data.message.conversation_id)
                     );
                 } else {
+                    dispatch(setMessage(data.message));
                     setMessages((prevMessges) => [
                         data.message,
                         ...prevMessges,

@@ -98,6 +98,7 @@ declare global {
     interface ChatList extends Conversation {
         unread_messages_count: number;
         last_message_body: string | null;
+        last_message_image: string | null;
         last_message_time: string | null;
     }
 

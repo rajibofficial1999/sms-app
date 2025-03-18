@@ -1,4 +1,4 @@
-import { setShowForm } from "@/lib/store/conversationFormSlice";
+import { setShowForm } from "@/lib/store/addConversationSlice";
 import { cn } from "@/lib/utils";
 import { UserPlus2 } from "lucide-react";
 import { useDispatch } from "react-redux";

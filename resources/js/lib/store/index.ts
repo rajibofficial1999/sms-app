@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import conversationFormSlice from "./conversationFormSlice";
+import addConversationSlice from "./addConversationSlice";
+import messageSlice from "./messageSlice";
 
 export const store = configureStore({
     reducer: {
-        conversationForm: conversationFormSlice,
+        addConversation: addConversationSlice,
+        message: messageSlice,
     },
 });
 

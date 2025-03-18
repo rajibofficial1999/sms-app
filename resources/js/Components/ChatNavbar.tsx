@@ -4,7 +4,7 @@ import {
     setMessages,
     setShowForm,
     setTrafficNumber,
-} from "@/lib/store/conversationFormSlice";
+} from "@/lib/store/addConversationSlice";
 import { cn } from "@/lib/utils";
 import { usePage } from "@inertiajs/react";
 import axios from "axios";
@@ -20,7 +20,7 @@ interface ChatNavbarProps {
 
 const ChatNavbar: FC<ChatNavbarProps> = ({ className }) => {
     const { showForm } = useSelector(
-        (state: RootState) => state.conversationForm
+        (state: RootState) => state.addConversation
     );
 
     const { conversation } = usePage().props;

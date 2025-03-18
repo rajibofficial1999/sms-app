@@ -1,8 +1,8 @@
 import { CheckoutFormProps } from "@/Pages/Checkout/Index";
 import { cn } from "@/lib/utils";
 import { FC } from "react";
-import { Input } from "../../../Components/ui/input";
-import { Label } from "../../../Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
 
 interface AreaCodeFormProps {
     setData: (
