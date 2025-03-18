@@ -1,3 +1,4 @@
+import AuthInput from "@/Components/AuthInput";
 import InputError from "@/Components/InputError";
 import { Button } from "@/Components/ui/button";
 import { Checkbox } from "@/Components/ui/checkbox";
@@ -5,7 +6,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Lock, Mail } from "lucide-react";
 import { FormEventHandler, ReactNode } from "react";
 
 export default function Login() {
@@ -38,14 +39,14 @@ export default function Login() {
                 <div>
                     <Label htmlFor="email">Email</Label>
 
-                    <Input
-                        id="email"
-                        type="email"
+                    <AuthInput
                         name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData("email", e.target.value)}
+                        data={data}
+                        type="email"
+                        setData={setData}
+                        placeholder="Enter email address"
+                        errors={errors}
+                        icon={Mail}
                     />
 
                     <InputError message={errors.email} className="mt-2" />
@@ -54,14 +55,14 @@ export default function Login() {
                 <div className="mt-2">
                     <Label htmlFor="password">Password</Label>
 
-                    <Input
-                        id="password"
-                        type="password"
+                    <AuthInput
                         name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData("password", e.target.value)}
+                        data={data}
+                        type="password"
+                        setData={setData}
+                        placeholder="Enter password"
+                        errors={errors}
+                        icon={Lock}
                     />
 
                     <InputError message={errors.password} className="mt-2" />

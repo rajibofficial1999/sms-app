@@ -1,3 +1,4 @@
+import AuthInput from "@/Components/AuthInput";
 import InputError from "@/Components/InputError";
 import { Button } from "@/Components/ui/button";
 import { Checkbox } from "@/Components/ui/checkbox";
@@ -5,7 +6,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Lock, Mail, User } from "lucide-react";
 import { FormEventHandler, ReactNode, useState } from "react";
 
 export default function Register() {
@@ -45,14 +46,13 @@ export default function Register() {
                 <div>
                     <Label htmlFor="name">Name</Label>
 
-                    <Input
-                        id="name"
+                    <AuthInput
                         name="name"
-                        value={data.name}
-                        className="mt-1 block w-full"
+                        data={data}
+                        setData={setData}
                         placeholder="Enter your name"
-                        autoComplete="username"
-                        onChange={(e) => setData("name", e.target.value)}
+                        errors={errors}
+                        icon={User}
                     />
 
                     <InputError message={errors.email} className="mt-2" />
@@ -61,15 +61,14 @@ export default function Register() {
                 <div className="mt-2">
                     <Label htmlFor="email">Email</Label>
 
-                    <Input
-                        id="email"
-                        type="email"
+                    <AuthInput
                         name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        placeholder="Enter email"
-                        autoComplete="email"
-                        onChange={(e) => setData("email", e.target.value)}
+                        data={data}
+                        type="email"
+                        setData={setData}
+                        placeholder="Enter email address"
+                        errors={errors}
+                        icon={Mail}
                     />
 
                     <InputError message={errors.email} className="mt-2" />
@@ -78,15 +77,14 @@ export default function Register() {
                 <div className="mt-2">
                     <Label htmlFor="password">Password</Label>
 
-                    <Input
-                        id="password"
-                        type="password"
+                    <AuthInput
                         name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
+                        data={data}
+                        type="password"
+                        setData={setData}
                         placeholder="Enter password"
-                        onChange={(e) => setData("password", e.target.value)}
+                        errors={errors}
+                        icon={Lock}
                     />
 
                     <InputError message={errors.password} className="mt-2" />
@@ -97,16 +95,14 @@ export default function Register() {
                         Confirm Password
                     </Label>
 
-                    <Input
-                        id="password_confirmation"
-                        type="password"
+                    <AuthInput
                         name="password_confirmation"
-                        value={data.password_confirmation}
+                        data={data}
+                        type="password"
+                        setData={setData}
                         placeholder="Confirm password"
-                        className="mt-1 block w-full"
-                        onChange={(e) =>
-                            setData("password_confirmation", e.target.value)
-                        }
+                        errors={errors}
+                        icon={Lock}
                     />
 
                     <InputError

@@ -1,9 +1,10 @@
+import AuthInput from "@/Components/AuthInput";
 import InputError from "@/Components/InputError";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import GuestLayout from "@/Layouts/Admin/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import { ArrowLeft, LoaderCircle, Mail } from "lucide-react";
 import { FormEventHandler, ReactNode } from "react";
 
 export default function ForgotPassword({ status }: { status: string }) {
@@ -40,14 +41,14 @@ export default function ForgotPassword({ status }: { status: string }) {
             )}
 
             <form onSubmit={submit} className="mt-4">
-                <Input
-                    id="email"
-                    type="email"
+                <AuthInput
                     name="email"
-                    value={data.email}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData("email", e.target.value)}
-                    placeholder="Enter your email"
+                    data={data}
+                    type="email"
+                    setData={setData}
+                    placeholder="Enter email address"
+                    errors={errors}
+                    icon={Mail}
                 />
 
                 <InputError message={errors.email} className="mt-2" />

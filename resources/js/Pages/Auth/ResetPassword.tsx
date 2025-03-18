@@ -1,10 +1,11 @@
+import AuthInput from "@/Components/AuthInput";
 import InputError from "@/Components/InputError";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, useForm } from "@inertiajs/react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Lock } from "lucide-react";
 import { FormEventHandler, ReactNode } from "react";
 
 export default function ResetPassword({
@@ -47,15 +48,14 @@ export default function ResetPassword({
                 <div className="mt-4">
                     <Label htmlFor="password">Password</Label>
 
-                    <Input
-                        id="password"
-                        type="password"
+                    <AuthInput
                         name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData("password", e.target.value)}
-                        placeholder="Enter your password"
+                        data={data}
+                        type="password"
+                        setData={setData}
+                        placeholder="Enter new password"
+                        errors={errors}
+                        icon={Lock}
                     />
 
                     <InputError message={errors.password} className="mt-2" />
@@ -67,16 +67,14 @@ export default function ResetPassword({
                         Confirm Password
                     </Label>
 
-                    <Input
-                        type="password"
+                    <AuthInput
                         name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
+                        data={data}
+                        type="password"
+                        setData={setData}
                         placeholder="Confirm your password"
-                        onChange={(e) =>
-                            setData("password_confirmation", e.target.value)
-                        }
+                        errors={errors}
+                        icon={Lock}
                     />
 
                     <InputError
