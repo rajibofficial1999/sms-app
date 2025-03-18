@@ -16,7 +16,7 @@ const Dashboard = () => {
     const { profit, sales, consumed } = usePage<PageProps<any>>().props;
 
     return (
-        <ScrollArea className="h-screen px-4">
+        <>
             <Head title="Dashboard" />
             <div className="w-full mb-24 space-y-4">
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 xl:grid-cols-4">
@@ -85,7 +85,7 @@ const Dashboard = () => {
                 </div>
                 <UsersChart cardClassName="xl:block hidden" />
             </div>
-        </ScrollArea>
+        </>
     );
 };
 

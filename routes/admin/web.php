@@ -46,6 +46,7 @@ Route::middleware(['admin.auth', 'admin.verified'])->group(function () {
     Route::get('/app-settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/app-settings/update', [SettingsController::class, 'updateAppSettings'])->name('settings.update_app_settings');
     Route::patch('/app-settings/update-service-prices', [SettingsController::class, 'updateServicePrices'])->name('settings.update_service_prices');
+    Route::patch('/app-settings/set-provider', [SettingsController::class, 'setProvider'])->name('settings.set_provider');
 });
 
 

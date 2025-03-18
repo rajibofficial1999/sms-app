@@ -7,17 +7,17 @@ use Spatie\Permission\Models\Permission;
 
 class AppSettingPolicy
 {
-    public function create(Admin $admin): bool
+    public function manageAppSettings(Admin $admin): bool
     {
         if($admin->hasRole('Super admin')){
             return true;
         }
 
-        if (!$this->permisionTableExists('create_app_setting')) {
+        if (!$this->permisionTableExists('manage_app_settings')) {
             return false;
         }
 
-        return $admin->hasPermissionTo('create_app_setting');
+        return $admin->hasPermissionTo('manage_app_settings');
     }
 
     private function permisionTableExists(string $name): bool

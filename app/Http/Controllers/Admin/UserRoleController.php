@@ -17,9 +17,9 @@ class UserRoleController extends Controller
 {
     public function index(): Response | RedirectResponse
     {
-        if ($this->cannot('viewAny')) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
-        }
+        } 
         
         $roles = UserRole::whereNot('name', 'Super admin')->get();
 
@@ -35,9 +35,9 @@ class UserRoleController extends Controller
     
     public function store(Request $request)
     {
-        if ($this->cannot('create')) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
-        }
+        } 
 
         $request->validate([
                 'name' => ['required', 'string', 'max:255', 'unique:roles,name', 'regex:/^\S*$/'],
@@ -57,9 +57,9 @@ class UserRoleController extends Controller
 
     public function update(Request $request, UserRole $role): RedirectResponse
     {
-        if ($this->cannot('update', $role)) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
-        }
+        } 
 
         $request->validate([
                 'name' => ['required', 'string', 'max:255', 'regex:/^\S*$/', 'unique:roles,name,' . $role->id],
@@ -78,21 +78,17 @@ class UserRoleController extends Controller
 
     public function destroy(UserRole $role): RedirectResponse
     {
-        if ($this->cannot('delete', $role)) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
-        }
+        } 
 
         $role->delete();
 
         return redirect()->back();
     }
 
-    private function cannot(string $operation, ?UserRole $role = null): bool
+    private function cannot(string $operation): bool
     {
-        if (!$role) {
-            return Gate::forUser(Auth::guard('admin')->user())->denies($operation, UserRole::class);
-        }
-
-        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, $role);
+        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, UserRole::class);
     }
 }

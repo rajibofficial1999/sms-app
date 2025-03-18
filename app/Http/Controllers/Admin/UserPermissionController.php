@@ -17,7 +17,7 @@ class UserPermissionController extends Controller
 {
      public function store(Request $request): RedirectResponse
     {
-        if ($this->cannot('create')) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
         } 
         
@@ -39,9 +39,9 @@ class UserPermissionController extends Controller
 
     public function update(Request $request, Permission $permission): RedirectResponse
     {
-        if ($this->cannot('update', $permission)) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
-        } 
+        }  
 
          $request->validate([
                 'name' => ['required', 'string', 'max:255', 'regex:/^\S*$/', 'unique:permissions,name,' . $permission->id],
@@ -60,9 +60,9 @@ class UserPermissionController extends Controller
 
     public function destroy(Permission $permission): RedirectResponse
     {
-        if ($this->cannot('delete', $permission)) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
-        } 
+        }  
 
         $permission->delete();
 
@@ -71,7 +71,7 @@ class UserPermissionController extends Controller
 
     public function assignPermission(AssignPermissionRequest $request)
     {
-        if ($this->cannot('assignPermission')) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
         } 
 
@@ -84,9 +84,9 @@ class UserPermissionController extends Controller
 
     public function removePermission(Request $request)
     {
-        if ($this->cannot('removeAssignedPermission')) {
+        if ($this->cannot('manageRolesPermissions')) {
             return Redirect::unauthorized();
-        } 
+        }  
 
         $request->validate([
             'permission' => ['required', 'integer', 'exists:permissions,id'],
@@ -123,12 +123,8 @@ class UserPermissionController extends Controller
         ]);
     }
 
-    private function cannot(string $operation, ?Permission $permission = null): bool
+    private function cannot(string $operation): bool
     {
-        if (!$permission) {
-            return Gate::forUser(Auth::guard('admin')->user())->denies($operation, Permission::class);
-        }
-
-        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, $permission);
+        return Gate::forUser(Auth::guard('admin')->user())->denies($operation, Permission::class);
     }
 }

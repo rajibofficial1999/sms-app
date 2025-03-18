@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\MessageProvider;
 use App\Helpers\Redirect;
 use App\Http\Controllers\Controller;
+use App\Models\ActiveProvider;
 use App\Models\AppSetting;
 use App\Models\ServicePrice;
 use Illuminate\Http\RedirectResponse;
@@ -11,25 +13,28 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Enum;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SettingsController extends Controller
 {
-    public function edit(): Response
-    {        
+    public function edit(): Response | RedirectResponse
+    {    
+        if (Gate::forUser(Auth::guard('admin')->user())->denies('manageAppSettings', AppSetting::class)) {
+            return Redirect::unauthorized();
+        } 
+
         return Inertia::render('Admin/Settings/Edit', [
             'app_settings' => AppSetting::query()->first(),
             'service_prices' => ServicePrice::query()->first(),
+            'providers' => MessageProvider::cases(),
+            'active_provider' => ActiveProvider::active()->first()
         ]);
     }
 
     public function updateAppSettings(Request $request): RedirectResponse
-    {
-         if (Gate::forUser(Auth::guard('admin')->user())->denies('create', AppSetting::class)) {
-            return Redirect::unauthorized();
-        } 
-        
+    { 
         $request->validate([
             'app_name' => ['required', 'string', 'max:255'],
             'app_description' => ['nullable', 'string', 'max:255'],
@@ -68,7 +73,7 @@ class SettingsController extends Controller
 
     public function updateServicePrices(Request $request): RedirectResponse
     {
-        if (Gate::forUser(Auth::guard('admin')->user())->denies('create', ServicePrice::class)) {
+        if (Gate::forUser(Auth::guard('admin')->user())->denies('manageAppSettings', ServicePrice::class)) {
             return Redirect::unauthorized();
         } 
 
@@ -100,4 +105,31 @@ class SettingsController extends Controller
 
         return redirect()->back();
     } 
+
+    public function setProvider(Request $request): RedirectResponse
+    { 
+        if (Gate::forUser(Auth::guard('admin')->user())->denies('manageAppSettings', AppSetting::class)) {
+            return Redirect::unauthorized();
+        } 
+
+        $request->validate([
+            'name' => ['required', 'string', new Enum(MessageProvider::class)],
+        ]);
+        
+        $activeProvider = ActiveProvider::active()->first();
+
+        if($activeProvider){
+            $activeProvider->update([
+                'name' => $request->name,
+                'is_active' => true
+            ]);
+        }else{
+            $activeProvider = ActiveProvider::create([
+                'name' => $request->name,
+                'is_active' => true
+            ]);
+        }
+
+        return redirect()->back();
+    }
 }

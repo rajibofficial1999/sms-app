@@ -88,7 +88,8 @@ const SidebarMobileMenu = () => {
                     </li>
                 )}
 
-                {(admin.is_super_admin || admin.can_only.view_roles) && (
+                {(admin.is_super_admin ||
+                    admin.can_only.manage_roles_and_permissions) && (
                     <li className="text-nowrap">
                         <SidebarLink
                             name="Roles"
@@ -100,8 +101,7 @@ const SidebarMobileMenu = () => {
                 )}
 
                 {(admin.is_super_admin ||
-                    admin.can_only.create_app_setting ||
-                    admin.can_only.create_service_price) && (
+                    admin.can_only.manage_app_settings) && (
                     <li className="text-nowrap">
                         <SidebarLink
                             name="Settings"

@@ -1,9 +1,9 @@
-import AppSettingsInformationForm from "./Partials/AppSettingsInformationForm";
-import { ScrollArea } from "@/Components/ui/scroll-area";
 import AppLayout from "@/Layouts/Admin/AppLayout";
 import { Head } from "@inertiajs/react";
 import { ReactNode } from "react";
+import AppSettingsInformationForm from "./Partials/AppSettingsInformationForm";
 import ServicePricingForm from "./Partials/ServicePricingForm";
+import MessageProviderForm from "./Partials/MessageProviderForm";
 
 const Edit = () => {
     return (
@@ -17,6 +17,10 @@ const Edit = () => {
 
                     <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 w-full">
                         <ServicePricingForm />
+                    </div>
+
+                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 w-full">
+                        <MessageProviderForm className="max-w-xl" />
                     </div>
                 </div>
             </div>

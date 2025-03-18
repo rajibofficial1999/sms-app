@@ -19,9 +19,7 @@ const RolesPermissions: React.FC<RolesPermissionsProps> = ({
     setSelectedRole,
     setSelectedPermission,
 }) => {
-    const {
-        auth: { admin },
-    } = usePage().props;
+    const {} = usePage().props;
     const [confirmingDeletion, setConfirmingDeletion] =
         useState<boolean>(false);
     const [deleteableRole, setDeleteableRole] = useState<Role | null>(null);
@@ -104,28 +102,22 @@ const RolesPermissions: React.FC<RolesPermissionsProps> = ({
                                     className="flex items-center space-x-2"
                                 >
                                     <div className="flex items-center space-x-1">
-                                        {(admin.is_super_admin ||
-                                            admin.can_only.delete_role) && (
-                                            <button
-                                                onClick={() =>
-                                                    handleDelete(role, "role")
-                                                }
-                                                className="text-red-500"
-                                            >
-                                                <Trash className="size-4" />
-                                            </button>
-                                        )}
+                                        <button
+                                            onClick={() =>
+                                                handleDelete(role, "role")
+                                            }
+                                            className="text-red-500"
+                                        >
+                                            <Trash className="size-4" />
+                                        </button>
 
-                                        {(admin.is_super_admin ||
-                                            admin.can_only.update_role) && (
-                                            <button
-                                                onClick={() =>
-                                                    setSelectedRole(role)
-                                                }
-                                            >
-                                                <PenBoxIcon className="size-4" />
-                                            </button>
-                                        )}
+                                        <button
+                                            onClick={() =>
+                                                setSelectedRole(role)
+                                            }
+                                        >
+                                            <PenBoxIcon className="size-4" />
+                                        </button>
                                     </div>
                                     <span>{role.name}</span>
                                 </li>
@@ -142,36 +134,28 @@ const RolesPermissions: React.FC<RolesPermissionsProps> = ({
                                         className="flex items-center space-x-2"
                                     >
                                         <div className="flex items-center space-x-1">
-                                            {(admin.is_super_admin ||
-                                                admin.can_only
-                                                    .delete_permission) && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            permission,
-                                                            "permission"
-                                                        )
-                                                    }
-                                                    className="text-red-500"
-                                                >
-                                                    <Trash className="size-4" />
-                                                </button>
-                                            )}
+                                            <button
+                                                onClick={() =>
+                                                    handleDelete(
+                                                        permission,
+                                                        "permission"
+                                                    )
+                                                }
+                                                className="text-red-500"
+                                            >
+                                                <Trash className="size-4" />
+                                            </button>
 
-                                            {(admin.is_super_admin ||
-                                                admin.can_only
-                                                    .update_permission) && (
-                                                <button
-                                                    onClick={() =>
-                                                        setSelectedPermission(
-                                                            permission
-                                                        )
-                                                    }
-                                                    className="text-gray-600"
-                                                >
-                                                    <PenBoxIcon className="size-4" />
-                                                </button>
-                                            )}
+                                            <button
+                                                onClick={() =>
+                                                    setSelectedPermission(
+                                                        permission
+                                                    )
+                                                }
+                                                className="text-gray-600"
+                                            >
+                                                <PenBoxIcon className="size-4" />
+                                            </button>
                                         </div>
                                         <span>{permission.name}</span>
                                     </li>
