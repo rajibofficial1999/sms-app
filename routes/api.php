@@ -13,7 +13,8 @@ Route::group(['middleware' => ['web']], function () {
     Route::post('/messages', [MessageController::class, 'store']);
     Route::post('/messages/webhook', [MessageController::class, 'receivedMessage']);
 
-    Route::get('/messages/{trafficNumber}', [MessageController::class, 'getMessagesByNumber']);
+    Route::get('/messages/{trafficNumber}', [MessageController::class, 'getMessagesByNumber'])->name('messages.index.by_number');
+    Route::post('/messages/load-more', [MessageController::class, 'loadMoreMessages'])->name('messages.load_more');
 
     Route::get('/orders/search/{search?}', [OrderController::class, 'search'])->name('admin.orders.search');
     Route::get('/orders/filter/{status?}', [OrderController::class, 'filter'])->name('admin.orders.filter');

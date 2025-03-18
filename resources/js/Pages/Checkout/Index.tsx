@@ -75,7 +75,7 @@ const Checkout = () => {
         <>
             <Head title="Checkout" />
 
-            <MaxWidthWrapper className="text-center h-full !max-h-[calc(100vh-3.5rem)] flex justify-center items-center">
+            <MaxWidthWrapper className="text-center h-screen !max-h-[calc(100vh-3.5rem)] flex justify-center items-center">
                 <div className="max-w-sm w-full mx-auto border p-4 rounded-md shadow shadow-primary/20">
                     {step === 1 && (
                         <>

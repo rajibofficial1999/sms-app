@@ -6,7 +6,9 @@ import ChatLayout from "@/Layouts/ChatLayout";
 import { RootState } from "@/lib/store";
 import { setShowForm } from "@/lib/store/conversationFormSlice";
 import { Head, usePage } from "@inertiajs/react";
-import { ReactNode, useEffect, useState } from "react";
+import axios from "axios";
+import debounce from "debounce";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 const Messaging = () => {
@@ -15,6 +17,10 @@ const Messaging = () => {
     const [initialMessages, setInitialMessages] = useState<Message[]>([]);
     const [initialConversation, setInitialConversation] =
         useState<Conversation | null>(null);
+    const [page, setPage] = useState<number>(1);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const scrollDownRef = useRef<HTMLDivElement | null>(null);
+    const [hasNewMessage, setHasNewMessage] = useState<boolean>(false);
 
     const dispatch = useDispatch();
 
@@ -24,24 +30,54 @@ const Messaging = () => {
         messages: stateMessages,
     } = useSelector((state: RootState) => state.conversationForm);
 
+    const fetchScrollMessages = debounce(async () => {
+        setIsLoading(true);
+
+        try {
+            const { data } = await axios.post(route("messages.load_more"), {
+                conversation: conversation?.id,
+                page: page,
+            });
+            if (data.success) {
+                setPage(page + 1);
+
+                setInitialMessages((prevMessges) => [
+                    ...prevMessges,
+                    ...data.messages,
+                ]);
+            }
+        } catch (error: any) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, 300);
+
     useEffect(() => {
         if (stateConversation && stateMessages && showForm) {
             setInitialConversation(stateConversation);
-            setInitialMessages(stateMessages.data);
+            setInitialMessages(stateMessages);
         } else {
             setInitialConversation(conversation);
-            setInitialMessages(messages?.data);
+            setInitialMessages(messages);
         }
     }, [stateConversation, stateMessages, showForm]);
 
     useEffect(() => {
         if (conversation && messages) {
             setInitialConversation(conversation);
-            setInitialMessages(messages?.data);
+            setInitialMessages(messages);
         }
 
         dispatch(setShowForm(false));
     }, [conversation, messages]);
+
+    useEffect(() => {
+        if (scrollDownRef.current && hasNewMessage) {
+            scrollDownRef.current.scrollIntoView({ behavior: "smooth" });
+            setHasNewMessage(false);
+        }
+    }, [hasNewMessage]);
 
     return (
         <>
@@ -55,10 +91,16 @@ const Messaging = () => {
                         <Messages
                             conversation={initialConversation}
                             messages={initialMessages}
+                            fetchScrollMessages={fetchScrollMessages}
+                            isLoading={isLoading}
+                            scrollDownRef={scrollDownRef}
                         />
 
                         {(!conversation?.is_blocked || showForm) && (
-                            <ChatInput setMessages={setInitialMessages} />
+                            <ChatInput
+                                setMessages={setInitialMessages}
+                                setHasNewMessage={setHasNewMessage}
+                            />
                         )}
                     </>
                 ) : (

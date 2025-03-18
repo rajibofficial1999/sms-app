@@ -36,7 +36,7 @@ const Billings = ({
                                 <h1 className="font-semibold mb-2 text-neutral-600">
                                     Billing Period
                                 </h1>
-                                <div className="shadow p-5 rounded-lg bg-gray-100/15 flex flex-col gap-2 h-32">
+                                <div className="shadow p-5 rounded-lg bg-white flex flex-col gap-2 h-32">
                                     <div className="flex justify-between items-center">
                                         <h1 className="font-bold capitalize">
                                             {subscription.period}
@@ -104,7 +104,7 @@ const Billings = ({
                                 <h1 className="font-semibold mb-2 text-neutral-600">
                                     Payment Method
                                 </h1>
-                                <div className="shadow p-5 rounded-lg bg-gray-100/15 h-32 flex items-center gap-3">
+                                <div className="shadow p-5 rounded-lg bg-white h-32 flex items-center gap-3">
                                     <div>
                                         <img
                                             src="/images/payment.png"

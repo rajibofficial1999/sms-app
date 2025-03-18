@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Message;
 
+use App\Interfaces\MessageProvider;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
 
-class TwilioService
+class TwilioService implements MessageProvider
 {
     private Client $client;
 
@@ -20,7 +21,6 @@ class TwilioService
     }
 
     
-
     public function sendSMS(string $receiverNumber, string $senderNumber, string $body): array
     {
         try {

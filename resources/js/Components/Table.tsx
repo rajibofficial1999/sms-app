@@ -10,6 +10,7 @@ import { ChevronDown, Filter, Plus, Search } from "lucide-react";
 import { FC, ReactNode, useEffect, useState } from "react";
 import Pagination from "./Pagination";
 import { Link } from "@inertiajs/react";
+import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
 interface TableProps {
     isActionRequired?: boolean;
@@ -135,41 +136,46 @@ const Table: FC<TableProps> = ({
                     </div>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                {headers.map((header) => (
-                                    <th
-                                        key={header}
-                                        scope="col"
-                                        className="px-4 py-3 text-nowrap"
-                                    >
-                                        {header}
-                                    </th>
-                                ))}
-
-                                {isActionRequired && (
-                                    <th scope="col" className="px-4 py-3">
-                                        <span className="sr-only">Actions</span>
-                                    </th>
-                                )}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.data.length > 0 ? (
-                                children
-                            ) : (
+                    <ScrollArea>
+                        <table className="w-full text-sm text-left text-gray-500">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
-                                    <td
-                                        colSpan={headers.length}
-                                        className="text-center py-5"
-                                    >
-                                        No data found
-                                    </td>
+                                    {headers.map((header) => (
+                                        <th
+                                            key={header}
+                                            scope="col"
+                                            className="px-4 py-3 text-nowrap"
+                                        >
+                                            {header}
+                                        </th>
+                                    ))}
+
+                                    {isActionRequired && (
+                                        <th scope="col" className="px-4 py-3">
+                                            <span className="sr-only">
+                                                Actions
+                                            </span>
+                                        </th>
+                                    )}
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {data.data.length > 0 ? (
+                                    children
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan={headers.length}
+                                            className="text-center py-5"
+                                        >
+                                            No data found
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
                 </div>
                 {!hidePagination && (
                     <nav

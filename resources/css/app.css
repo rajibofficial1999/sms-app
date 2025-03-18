@@ -6,6 +6,7 @@ html, body {
     overflow: hidden;
 }
 
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -70,4 +71,29 @@ html, body {
   body {
     @apply bg-background text-foreground;
   }
+
+  .scroll-area::-webkit-scrollbar {
+      width: 8px; 
+  }
+
+  .scroll-area::-webkit-scrollbar-thumb {
+      background-color: #666666;
+      border-radius: 10px;
+      cursor: pointer;
+  }
+
+  .scroll-area::-webkit-scrollbar-track {
+      background-color: transparent;
+  }
+  
+  .scroll-area::-webkit-scrollbar-track {
+      background-color: transparent;
+  }
+
+  .scroll-area {
+      scrollbar-width: thin; 
+      scrollbar-color: #666666 transparent; 
+  }
+
 }
+

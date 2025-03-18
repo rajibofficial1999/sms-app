@@ -1,14 +1,14 @@
 export const pricingFeatures: PricingFeature[] = [
     {
-        text: "{} monthly credits",
+        text: "Send and receive messages",
         negetive: false,
     },
     {
-        text: "Bonus credits for daily login",
+        text: "Send and receive images",
         negetive: false,
     },
     {
-        text: "Fast-track generation",
+        text: "Incoming and outgoing call",
         negetive: false,
     },
 ];

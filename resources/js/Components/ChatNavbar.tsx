@@ -37,7 +37,12 @@ const ChatNavbar: FC<ChatNavbarProps> = ({ className }) => {
         }
 
         try {
-            const { data } = await axios.get(`/api/messages/${e.target.value}`);
+            const { data } = await axios.get(
+                route("messages.index.by_number", {
+                    trafficNumber: e.target.value,
+                })
+            );
+
             if (data.success) {
                 dispatch(setMessages(data.messages));
                 dispatch(setConversation(data.conversation));
@@ -106,7 +111,7 @@ const ChatNavbar: FC<ChatNavbarProps> = ({ className }) => {
                             dispatch(setTrafficNumber(null));
                             dispatch(setShowForm(false));
                             dispatch(setConversation(null));
-                            dispatch(setMessages(null));
+                            dispatch(setMessages([]));
                         }}
                     >
                         <X className="size-5 text-gray-600" />

@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Enums\Status;
 use App\Events\ReceivedMessage;
 use App\Http\Requests\MessageStoreRequest;
-use App\Interfaces\MessageInterface;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\PhoneNumber;
 use App\Models\User;
+use App\Services\MessageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -19,7 +19,8 @@ use Inertia\Response;
 
 class MessageController extends Controller
 {
-    public function __construct(protected MessageInterface $message) {}
+    protected int $perPage = 30;
+    public function __construct(protected MessageService $messageService) {}
 
     public function index(): Response
     {
@@ -39,11 +40,9 @@ class MessageController extends Controller
         $user = Auth::user();
         $userNumber = $user->phoneNumber;
 
-        $messagesQuery = Message::where('conversation_id', $conversation->id);
-
-        $messages = $messagesQuery->with('image')->latest()->paginate(50);
+        $messages = $this->getLimitedMessages($conversation);
         
-        $messagesQuery->where('sender_number', '!=', $userNumber->number)
+        $conversation->messages()->where('sender_number', '!=', $userNumber->number)
             ->where('isUnread', true)
             ->update(['isUnread' => false]);
 
@@ -70,7 +69,8 @@ class MessageController extends Controller
             return $this->forbiddenResponse('The number has blocked');
         }
 
-        $response = $this->message->sendMessage($request); 
+        $response = $this->messageService->sendMessage($request); 
+
         if (!$response->get('success')) {
             return response()->json([
                 'success' => false,
@@ -79,12 +79,14 @@ class MessageController extends Controller
             ], 500);
         }
 
+        // get response data
+        $imageUrl = $response->get('imageUrl'); 
+        $userNumberId = $response->get('user_number_id'); 
+
         if (!$conversation) {
-            $conversation = $this->createConversation($authUser->phoneNumber, $request->receiver_number);
+            $conversation = $this->createConversation($userNumberId, $request->receiver_number);
         }
 
-        // get Image Url
-        $imageUrl = $response->get('imageUrl'); 
 
         return response()->json([
             'success' => true,
@@ -94,7 +96,7 @@ class MessageController extends Controller
 
     public function receivedMessage(Request $request): void
     {
-        $response = $this->message->receiveMessage($request);
+        $response = $this->messageService->receiveMessage($request);
 
         $localNumber = $response->get('localNumber');
         $senderNumber = $response->get('senderNumber');
@@ -122,22 +124,45 @@ class MessageController extends Controller
         broadcast(new ReceivedMessage($message));
     }
 
-    public function getMessagesByNumber(string $trafficNumber)
+    public function getMessagesByNumber(string $trafficNumber): JsonResponse
     {
         $conversation = Conversation::where('traffic_number', $trafficNumber)->first();
         if(!$conversation) {
             return response()->json([
                 'success' => false,
                 'messages' => null,
-                'conversation'    => null
+                'conversation' => null
             ]);
         }
 
         return response()->json([
-             'success' => true,
-            'messages' => $conversation->messages()->with('image')->latest()->paginate(50),
-            'conversation'    => $conversation
+            'success' => true,
+            'messages' => $this->getLimitedMessages($conversation),
+            'conversation' => $conversation
         ]);
+    }
+
+    public function loadMoreMessages(Request $request)
+    {
+        $request->validate([
+            'conversation' => 'required|numeric|exists:conversations,id',
+            'page' => 'required|integer',
+        ]);
+
+        $conversation = Conversation::find($request->conversation);
+        $skip = $request->page * $this->perPage;  
+
+        $messages = $this->getLimitedMessages($conversation, $skip);
+
+        return response()->json([
+            'success' => true,
+            'messages' => $messages,
+        ]);
+    }
+
+    private function getLimitedMessages(Conversation $conversation, int $skip = 0): Collection
+    {
+        return $conversation->messages()->with('image')->latest()->skip($skip)->take($this->perPage)->get();
     }
 
 
@@ -177,11 +202,11 @@ class MessageController extends Controller
         return true;    
     }
 
-    private function createConversation(PhoneNumber $userNumber, string $traffic_number): Conversation
+    private function createConversation(string $userNumberId, string $traffic_number): Conversation
     {
         return Conversation::create([
                 'traffic_number' => $traffic_number,
-                'local_number_id' => $userNumber->id
+                'local_number_id' => $userNumberId
         ]);
     }
 

@@ -6,6 +6,9 @@ use App\Enums\Status;
 use App\Enums\SubscriptionPeriod;
 use App\Helpers\Redirect;
 use App\Http\Controllers\Controller;
+use App\Jobs\ApproveOrderJob;
+use App\Jobs\ChangeOrderStatusJob;
+use App\Jobs\RejectOrderJob;
 use App\Models\Order;
 use App\Models\PhoneNumber;
 use App\Models\Subscription;
@@ -23,7 +26,6 @@ use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
-
     public function index(): Response | RedirectResponse
     {
         if ($this->cannot('viewAny')) {
@@ -80,8 +82,16 @@ class OrderController extends Controller
         ]);
 
         if($order->status === Status::COMPLETED) {
-            $this->createOrUpdateSubscription($order);
+            $Subscription = $this->createOrUpdateSubscription($order);
+
+            Order::whereStatus(Status::PENDING)->where('user_id', $order->user_id)->update(['status' => Status::REJECTED]);
+
+            ApproveOrderJob::dispatch($order, $Subscription);
+        }else{
+            RejectOrderJob::dispatch($order, 'invalid payment details');    
         }
+        
+        
 
         return redirect()->back();
     }
@@ -146,13 +156,13 @@ class OrderController extends Controller
         // Delete inactive phone numbers
         PhoneNumber::inActive()->where('user_id', $order->user_id)->delete();
 
-        // Delete all pending orders of the user
-        Order::whereStatus(Status::PENDING)->delete();
+        // reject rest all pending orders of the user
+        Order::whereStatus(Status::PENDING)->where('user_id', $order->user_id)->update(['status' => Status::REJECTED]);
 
         return redirect()->back();
     }
 
-    private function createOrUpdateSubscription(Order $order): void
+    private function createOrUpdateSubscription(Order $order): Subscription
     {
         if($order->period === SubscriptionPeriod::MONTHLY) {
             $expired_at = now()->addMonth();
@@ -160,7 +170,7 @@ class OrderController extends Controller
             $expired_at = now()->addWeek();
         }
 
-        Subscription::updateOrCreate([
+        $Subscription = Subscription::updateOrCreate([
             'user_id'   => $order->user_id,
             ], 
             [
@@ -169,6 +179,9 @@ class OrderController extends Controller
                 'payment_method_id' => $order->payment_method_id,
             ]
         );
+
+
+        return $Subscription;
     }
 
     private function cannot(string $operation, ?Order $order = null): bool

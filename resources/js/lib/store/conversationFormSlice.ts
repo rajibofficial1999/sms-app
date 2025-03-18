@@ -4,13 +4,13 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 export interface conversationFormState {
     showForm: boolean;
     trafficNumber: string | null;
-    messages: any;
+    messages: Message[];
     conversation: Conversation | null;
 }
 
 const initialState: conversationFormState = {
     showForm: false,
-    messages: null,
+    messages: [],
     conversation: null,
     trafficNumber: null,
 };
@@ -34,7 +34,7 @@ export const conversationFormSlice = createSlice({
             state.conversation = action.payload;
         },
 
-        setMessages: (state, action: PayloadAction<any>) => {
+        setMessages: (state, action: PayloadAction<Message[]>) => {
             state.messages = action.payload;
         },
     },

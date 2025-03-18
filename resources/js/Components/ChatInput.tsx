@@ -13,9 +13,13 @@ import { Label } from "./ui/label";
 
 interface ChatInputProps {
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+    setHasNewMessage: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ setMessages }) => {
+const ChatInput: React.FC<ChatInputProps> = ({
+    setMessages,
+    setHasNewMessage,
+}) => {
     const { conversation } = usePage().props;
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
@@ -83,6 +87,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ setMessages }) => {
                         data.message,
                         ...prevMessges,
                     ]);
+
+                    setHasNewMessage(true);
                 }
             }
         } catch {

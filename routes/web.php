@@ -43,4 +43,23 @@ Route::middleware('auth')->group(function () {
     Route::post('/verify-code', VerificationCodeController::class)->name('verify.code');
 });
 
+Route::get('/create/random-messsage-for-testing', function() {
+    // $user = auth()->user();
+    // $userPhoneNumber = $user->phoneNumber;
+    // $conversation = $userPhoneNumber->conversations()->latest()->first();
+
+    // $data = [];
+
+    // foreach (range(1, 100) as $i) {
+    //     $data[$i] = [
+    //         'body' => fake()->sentence(),
+    //         'sender_number' => fake()->randomElement([$conversation->traffic_number, $userPhoneNumber->number]),
+    //         'isUnread' => true,
+    //     ];
+    // }
+
+    // $conversation->messages()->createMany($data);
+
+})->name('crate.random_message');
+
 require __DIR__.'/auth.php';

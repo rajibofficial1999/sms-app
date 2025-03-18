@@ -40,7 +40,7 @@ const DailyMessagesChart = () => {
                 <CardContent>
                     <ChartContainer
                         config={chartConfig}
-                        className="max-h-60 w-full"
+                        className="max-h-72 w-full"
                     >
                         <AreaChart
                             accessibilityLayer

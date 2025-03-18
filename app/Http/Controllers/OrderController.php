@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Status;
 use App\Http\Requests\OrderStoreRequest;
+use App\Jobs\PlaceOrderJob;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +26,9 @@ class OrderController extends Controller
 
         $user = Auth::user();
 
-        $user->orders()->create($validated);
+        $order = $user->orders()->create($validated);
+
+        PlaceOrderJob::dispatch($user, $order);
 
         return redirect()->route('dashboard');
     }

@@ -1,8 +1,6 @@
-import { PropsWithChildren } from "react";
 import MobileSidebar from "@/Components/MobileSidebar";
 import SubSidebar from "@/Components/SubSidebar";
-import { cn } from "@/lib/utils";
-import { usePage } from "@inertiajs/react";
+import { PropsWithChildren } from "react";
 
 export const metadata = {
     title: "FriendZone | Dashboard",
@@ -10,8 +8,6 @@ export const metadata = {
 };
 
 const AuthLayout = ({ children }: PropsWithChildren) => {
-    const { url } = usePage();
-
     return (
         <div className="w-full flex h-screen">
             <div className="md:hidden">
@@ -20,14 +16,7 @@ const AuthLayout = ({ children }: PropsWithChildren) => {
 
             <SubSidebar className="hidden md:flex" />
 
-            <aside
-                className={cn(
-                    "max-h-screen w-full mt-14 md:mt-0 overflow-hidden",
-                    {
-                        "bg-gray-100": url === "/dashboard",
-                    }
-                )}
-            >
+            <aside className="max-h-screen w-full mt-14 md:mt-0 overflow-hidden bg-gray-100">
                 {children}
             </aside>
         </div>

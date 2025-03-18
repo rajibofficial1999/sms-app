@@ -1,6 +1,7 @@
 import AppSidebar from "@/Components/Admin/AppSidebar";
 import MobileSidebar from "@/Components/Admin/MobileSidebar";
 import ApplicationLogo from "@/Components/ApplicationLogo";
+import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Toaster } from "@/Components/ui/sonner";
 import { PropsWithChildren } from "react";
 
@@ -29,9 +30,11 @@ const ChatLayout = ({ children }: PropsWithChildren) => {
                     </nav>
                 </div>
 
-                <aside className="max-h-screen w-full mt-14 lg:mt-0 p-4 bg-gray-100">
-                    {children}
-                </aside>
+                <ScrollArea className="w-full max-h-screen">
+                    <aside className=" w-full mt-14 lg:mt-0 p-4 bg-gray-100 min-h-screen">
+                        {children}
+                    </aside>
+                </ScrollArea>
             </div>
         </>
     );

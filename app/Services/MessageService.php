@@ -1,24 +1,37 @@
 <?php
 
-namespace App\Implementations;
+namespace App\Services;
 
-use App\Interfaces\MessageInterface;
-use App\Services\TwilioService;
+use App\Interfaces\MessageProvider;
+use App\Models\ActiveProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Enums\MessageProvider as ProviderEnum;
 
-class SmsApi implements MessageInterface
+class MessageService
 {
-    private $provider;
+    protected ?MessageProvider $provider = null;
 
-    public function __construct()
+    public function activeProvider(): MessageProvider
     {
-        $this->provider = new TwilioService();
+        if (!$this->provider) {
+            $activeProvider = ActiveProvider::active()->first();
+            
+            if (!$activeProvider) {
+                $this->provider = app(ProviderEnum::defaultService());
+            }else{
+                $providerClass = $activeProvider->name->details()['service_class'];
+                $this->provider = app($providerClass);
+            }            
+            
+        }
+
+        return $this->provider;
     }
 
-    public function sendMessage(Request $request): Collection
+     public function sendMessage(Request $request): Collection
     {
         $userPhoneNumber = Auth::user()->phoneNumber;
 
@@ -40,9 +53,9 @@ class SmsApi implements MessageInterface
             $imagePath = $request->file('image')->store('images', 'public');
             $imagePath = asset(Storage::url($imagePath));
 
-            // $response = $this->provider->sendMMS($receiverNumber, $senderNumber, $imagePath);
+            // $response = $this->activeProvider()->sendMMS($receiverNumber, $senderNumber, $imagePath);
         }else{
-            // $response = $this->provider->sendSMS($receiverNumber, $senderNumber, $request->input('body'));
+            // $response = $this->activeProvider()->sendSMS($receiverNumber, $senderNumber, $request->input('body'));
         }
 
         $response['imageUrl'] = $imagePath;

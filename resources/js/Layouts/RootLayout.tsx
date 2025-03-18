@@ -1,4 +1,6 @@
+import Footer from "@/Components/Footer";
 import Navbar from "@/Components/Navbar";
+import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Toaster } from "@/Components/ui/sonner";
 import { PropsWithChildren } from "react";
 
@@ -11,10 +13,11 @@ const RootLayout = ({ children }: PropsWithChildren) => {
     return (
         <div className="w-full flex h-screen overflow-hidden">
             <Toaster />
-            <main className="flex-1 overflow-auto">
+            <ScrollArea className="flex-1 overflow-auto">
                 <Navbar />
                 {children}
-            </main>
+                <Footer />
+            </ScrollArea>
         </div>
     );
 };

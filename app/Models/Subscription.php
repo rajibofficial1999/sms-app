@@ -12,7 +12,6 @@ class Subscription extends Model
 {
     protected $fillable = [
         'user_id',
-        'order_id',
         'expired_at',
         'status',
         'period',

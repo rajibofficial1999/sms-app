@@ -30,38 +30,33 @@ const Roles = () => {
 
     return (
         <>
-            <ScrollArea className="h-screen py-5">
-                <Head title="Manege roles" />
+            <Head title="Manege roles" />
 
-                <div className="pb-12">
-                    <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                        {admin.is_super_admin ||
-                            (admin.can_only.create_role && (
-                                <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                                    <RolePermissionForm
-                                        selectedRole={selectedRole}
-                                        selectedPermission={selectedPermission}
-                                        setSelectedRole={setSelectedRole}
-                                        setSelectedPermission={
-                                            setSelectedPermission
-                                        }
-                                    />
-                                </div>
-                            ))}
+            <div className="pb-12">
+                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+                    {(admin.is_super_admin || admin.can_only.create_role) && (
                         <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                            <RolesPermissions
-                                roles={fetchedRoles}
-                                permissions={fetchedPermissions}
+                            <RolePermissionForm
+                                selectedRole={selectedRole}
+                                selectedPermission={selectedPermission}
                                 setSelectedRole={setSelectedRole}
                                 setSelectedPermission={setSelectedPermission}
                             />
                         </div>
-                        <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                            <AssignPermission roles={fetchedRoles} />
-                        </div>
+                    )}
+                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                        <RolesPermissions
+                            roles={fetchedRoles}
+                            permissions={fetchedPermissions}
+                            setSelectedRole={setSelectedRole}
+                            setSelectedPermission={setSelectedPermission}
+                        />
+                    </div>
+                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                        <AssignPermission roles={fetchedRoles} />
                     </div>
                 </div>
-            </ScrollArea>
+            </div>
         </>
     );
 };
